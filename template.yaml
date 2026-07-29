@@ -1,0 +1,240 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Student Support AI System - Serverless API with SAM, DynamoDB, Cognito Auth, Groq Integration, and Frontend Hosting
+
+Parameters:
+  GroqApiKey:
+    Type: String
+    NoEcho: true
+    Description: "Enter your personal Groq API Key (starts with gsk_)"
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+    Runtime: python3.12
+    Architectures:
+      - x86_64
+    Environment:
+      Variables:
+        TABLE_NAME: !Ref QuestionsTable
+        OPENAI_API_KEY: !Ref GroqApiKey
+
+Resources:
+  # ================= DYNAMODB TABLE =================
+  QuestionsTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
+
+  # ================= COGNITO AUTHENTICATION =================
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: studypal-user-pool
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+          RequireUppercase: true
+
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      ClientName: studypal-app-client
+      UserPoolId: !Ref UserPool
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+      GenerateSecret: false
+
+  # ================= REST API GATEWAY =================
+  StudentSupportApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'GET,POST,DELETE,OPTIONS'"
+        AllowHeaders: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+        AllowOrigin: "'*'"
+      Auth:
+        DefaultAuthorizer: CognitoAuthorizer
+        Authorizers:
+          CognitoAuthorizer:
+            UserPoolArn: !GetAtt UserPool.Arn
+        AddDefaultAuthorizerToCorsPreflight: false
+      GatewayResponses:
+        DEFAULT_4XX:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+              Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+              Access-Control-Allow-Methods: "'GET,POST,DELETE,OPTIONS'"
+        DEFAULT_5XX:
+          ResponseParameters:
+            Headers:
+              Access-Control-Allow-Origin: "'*'"
+              Access-Control-Allow-Headers: "'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token'"
+              Access-Control-Allow-Methods: "'GET,POST,DELETE,OPTIONS'"
+
+  # ================= LAMBDA FUNCTIONS =================
+  AskQuestionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers.ask.handler
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:PutItem
+                - dynamodb:GetItem
+                - dynamodb:UpdateItem
+                - dynamodb:DeleteItem
+                - dynamodb:Scan
+                - dynamodb:Query
+              Resource: !GetAtt QuestionsTable.Arn
+      Events:
+        AskApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref StudentSupportApi
+            Path: /ask
+            Method: post
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  GetQuestionsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers.get_questions.handler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref QuestionsTable
+      Events:
+        GetQuestionsApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref StudentSupportApi
+            Path: /question
+            Method: get
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  DeleteQuestionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers.delete_question.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref QuestionsTable
+      Events:
+        DeleteQuestionApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref StudentSupportApi
+            Path: /question/{id}
+            Method: delete
+            Auth:
+              Authorizer: CognitoAuthorizer
+
+  GetFaqFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/
+      Handler: handlers.get_faq.handler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref QuestionsTable
+      Events:
+        GetFaqApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref StudentSupportApi
+            Path: /faqs
+            Method: get
+            Auth:
+              Authorizer: 'NONE'
+
+  # ================= S3 BUCKET FOR FRONTEND =================
+  FrontendBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "studypal-frontend-${AWS::AccountId}-${AWS::Region}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: false
+        BlockPublicPolicy: false
+        IgnorePublicAcls: false
+        RestrictPublicBuckets: false
+      WebsiteConfiguration:
+        IndexDocument: index.html
+
+  FrontendBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref FrontendBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: PublicReadGetObject
+            Effect: Allow
+            Principal: '*'
+            Action: 's3:GetObject'
+            Resource: !Sub '${FrontendBucket.Arn}/*'
+
+  # ================= CLOUDFRONT DISTRIBUTION =================
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        DefaultRootObject: index.html
+        Origins:
+          - Id: S3Origin
+            DomainName: !GetAtt FrontendBucket.RegionalDomainName
+            CustomOriginConfig:
+              HTTPPort: 80
+              HTTPSPort: 443
+              OriginProtocolPolicy: http-only
+        DefaultCacheBehavior:
+          TargetOriginId: S3Origin
+          ViewerProtocolPolicy: redirect-to-https
+          AllowedMethods: [GET, HEAD, OPTIONS]
+          CachedMethods: [GET, HEAD]
+          ForwardedValues:
+            QueryString: false
+            Cookies:
+              Forward: none
+
+# ================= STACK OUTPUTS =================
+Outputs:
+  UserPoolId:
+    Description: "Cognito User Pool ID"
+    Value: !Ref UserPool
+
+  UserPoolClientId:
+    Description: "Cognito App Client ID"
+    Value: !Ref UserPoolClient
+
+  StudentSupportApiUrl:
+    Description: "API Gateway endpoint URL for Prod stage"
+    Value: !Sub "https://${StudentSupportApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+
+  CloudFrontURL:
+    Description: "Live StudyPal Website URL"
+    Value: !Sub "https://${CloudFrontDistribution.DomainName}"
+
+  FrontendS3Bucket:
+    Description: "S3 Bucket Name for uploading index.html"
+    Value: !Ref FrontendBucket
