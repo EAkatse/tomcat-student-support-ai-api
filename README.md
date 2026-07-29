@@ -34,17 +34,17 @@ sam build && sam deploy
 
 ###While setting default arguments for 'sam deploy, input the following when prompted:     
 
-        setting default arguments for 'sam deploy
-        =========================================
-        Stack Name [student-support-ai-system]: student-support-ai-system
-        AWS Region [us-east-1]: us-east-1
-        Parameter GroqApiKey: Paste your personal Groq API Key (gsk_...)
-        Confirm changes before deploy [y/N]: y 
-        Allow SAM CLI IAM role creation [Y/n]: y
-        Disable rollback [y/N]: n
-        Save arguments to configuration file [Y/n]: y
-        SAM configuration file [samconfig.toml]: (Press Enter Key) 
-        SAM configuration environment [default]: (Press Enter Key)
+setting default arguments for 'sam deploy
+=========================================
+Stack Name [student-support-ai-system]: student-support-ai-system
+AWS Region [us-east-1]: us-east-1
+Parameter GroqApiKey: Paste your personal Groq API Key (gsk_...)
+Confirm changes before deploy [y/N]: y 
+Allow SAM CLI IAM role creation [Y/n]: y
+Disable rollback [y/N]: n
+Save arguments to configuration file [Y/n]: y
+SAM configuration file [samconfig.toml]: (Press Enter Key) 
+SAM configuration environment [default]: (Press Enter Key)
 
 
 
@@ -80,11 +80,12 @@ aws s3 sync frontend/index.html s3://<YOUR_S3_BUCKET_NAME>/
 Your web app is now live at your CloudFrontURL!
 
 
-
+---
 ### For future updates to the backend code or infrastructure:
 
 Bash
-sam build && sam deploy --guided 
+sam build && sam deploy 
+
 
 SAM will remember your configuration settings from samconfig.toml.
 
