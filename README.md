@@ -339,7 +339,7 @@ LOG_LEVEL=
 
 **1. Clone the repository**
 ```bash
-git clone https://github.com/<organization>/eduassist-ai.git
+git clone https://github.com/EAkatse/tomcat-student-support-ai-api
 ```
 
 **2. Navigate into the project**
