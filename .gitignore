@@ -61,6 +61,10 @@ typing_inspection/
 typing_inspection-*.dist-info/
 bin/
 
+# CloudFront CLI config dumps
+dist-config.json
+dist-config-disabled.json
+
 # OS files
 .DS_Store
 Thumbs.db

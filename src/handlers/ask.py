@@ -202,6 +202,8 @@ def handler(event, context):
         category = body.get('category', 'General')
         attachment = body.get('attachment', None)
         history = body.get('history', [])  # Extract chat history array from request
+        chat_id = body.get('chatId')
+        chat_title = body.get('chatTitle')
 
         # Require at least a written question OR an attached file
         if not question and not attachment:
@@ -256,6 +258,11 @@ def handler(event, context):
 
         if user_id:
             item["userId"] = user_id
+
+        if chat_id:
+            item["chatId"] = chat_id
+        if chat_title:
+            item["chatTitle"] = chat_title
 
         # Track question frequency across platform
         if question:

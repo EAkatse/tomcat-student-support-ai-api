@@ -76,279 +76,308 @@
 </head>
 <body class="bg-slate-50 dark:bg-slate-900 app-height text-slate-800 dark:text-slate-100 font-sans flex overflow-hidden transition-colors duration-300">
 
-    <!-- Mobile Backdrop Overlay -->
-    <div id="sidebarBackdrop" onclick="closeMobileSidebar()" 
-         class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden md:hidden transition-opacity"></div>
+    <!-- ================= APP SHELL (everything behind the auth gate) ================= -->
+    <div id="appShell" class="hidden w-full h-full overflow-hidden">
 
-    <!-- ================= LEFT SIDEBAR (COLLAPSIBLE / CHAT THREADS) ================= -->
-    <aside id="sidebar" 
-           class="fixed md:relative inset-y-0 left-0 z-50 md:z-20 -translate-x-full md:translate-x-0 w-64 md:w-64 h-full bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col items-center py-3 px-3 transition-all duration-300 shadow-xl md:shadow-none">
-        
-        <!-- Sidebar Controls Header -->
-        <div class="w-full flex flex-col space-y-2 mb-3 flex-none">
-            <!-- Toggle Button (Top Right of Sidebar) -->
-            <div class="flex items-center justify-end w-full">
-                <button onclick="toggleSidebar()" title="Toggle sidebar"
-                    class="w-9 h-9 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition flex-none">
-                    <i id="sidebarToggleIcon" class="fa-solid fa-angles-left text-xs"></i>
+        <!-- Mobile Backdrop Overlay -->
+        <div id="sidebarBackdrop" onclick="closeMobileSidebar()" 
+             class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden md:hidden transition-opacity"></div>
+
+        <!-- ================= LEFT SIDEBAR (COLLAPSIBLE / CHAT THREADS) ================= -->
+        <aside id="sidebar" 
+               class="fixed md:relative inset-y-0 left-0 z-50 md:z-20 -translate-x-full md:translate-x-0 w-64 md:w-64 h-full bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col items-center py-3 px-3 transition-all duration-300 shadow-xl md:shadow-none">
+            
+            <!-- Sidebar Controls Header -->
+            <div class="w-full flex flex-col space-y-2 mb-3 flex-none">
+                <!-- Toggle Button (Top Right of Sidebar) -->
+                <div class="flex items-center justify-end w-full">
+                    <button onclick="toggleSidebar()" title="Toggle sidebar"
+                        class="w-9 h-9 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition flex-none">
+                        <i id="sidebarToggleIcon" class="fa-solid fa-angles-left text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- New Chat Button (Positioned Below Toggle Button) -->
+                <button onclick="createNewChat()" title="New Chat"
+                    class="rail-btn bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-md shadow-blue-500/20 px-3 flex items-center justify-start w-full">
+                    <i class="fa-solid fa-plus text-sm flex-none w-5 text-center"></i>
+                    <span class="rail-label text-xs ml-2 truncate">New Chat</span>
+                    <span class="rail-tooltip bg-slate-900 text-white text-[11px] px-2.5 py-1 rounded-md shadow-lg">New Chat</span>
                 </button>
             </div>
 
-            <!-- New Chat Button (Positioned Below Toggle Button) -->
-            <button onclick="createNewChat()" title="New Chat"
-                class="rail-btn bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-md shadow-blue-500/20 px-3 flex items-center justify-start w-full">
-                <i class="fa-solid fa-plus text-sm flex-none w-5 text-center"></i>
-                <span class="rail-label text-xs ml-2 truncate">New Chat</span>
-                <span class="rail-tooltip bg-slate-900 text-white text-[11px] px-2.5 py-1 rounded-md shadow-lg">New Chat</span>
-            </button>
-        </div>
-
-        <!-- Navigation Workspace Tabs -->
-        <div class="flex flex-col items-center space-y-1 w-full border-b border-slate-100 dark:border-slate-700/60 pb-3 flex-none">
-            <button onclick="switchTab('query')" id="tab-query" title="Chat Workspace"
-                class="rail-btn bg-slate-100 dark:bg-slate-700/70 text-blue-600 dark:text-blue-400 font-semibold px-3">
-                <i class="fa-solid fa-message text-sm flex-none w-5 text-center"></i>
-                <span class="rail-label text-xs ml-2.5 truncate">Chat Workspace</span>
-                <span class="rail-tooltip bg-slate-900 text-white text-[11px] px-2.5 py-1 rounded-md shadow-lg">Chat Workspace</span>
-            </button>
-        </div>
-
-        <!-- Chat History List (Pinned & Recents) -->
-        <div class="chat-history-section flex-grow w-full overflow-y-auto history-scroll my-2 space-y-4 px-0.5 min-h-0">
-            <!-- Pinned Container -->
-            <div id="pinnedChatsGroup" class="hidden space-y-1">
-                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-2 py-1">Pinned</p>
-                <div id="pinnedChatsList" class="space-y-0.5"></div>
+            <!-- Navigation Workspace Tabs -->
+            <div class="flex flex-col items-center space-y-1 w-full border-b border-slate-100 dark:border-slate-700/60 pb-3 flex-none">
+                <button onclick="switchTab('query')" id="tab-query" title="Chat Workspace"
+                    class="rail-btn bg-slate-100 dark:bg-slate-700/70 text-blue-600 dark:text-blue-400 font-semibold px-3">
+                    <i class="fa-solid fa-message text-sm flex-none w-5 text-center"></i>
+                    <span class="rail-label text-xs ml-2.5 truncate">Chat Workspace</span>
+                    <span class="rail-tooltip bg-slate-900 text-white text-[11px] px-2.5 py-1 rounded-md shadow-lg">Chat Workspace</span>
+                </button>
             </div>
 
-            <!-- Recents Container -->
-            <div id="recentChatsGroup" class="space-y-1">
-                <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-2 py-1">Recents</p>
-                <div id="recentChatsList" class="space-y-0.5"></div>
+            <!-- Chat History List (Pinned & Recents) -->
+            <div class="chat-history-section flex-grow w-full overflow-y-auto history-scroll my-2 space-y-4 px-0.5 min-h-0">
+                <!-- Pinned Container -->
+                <div id="pinnedChatsGroup" class="hidden space-y-1">
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-2 py-1">Pinned</p>
+                    <div id="pinnedChatsList" class="space-y-0.5"></div>
+                </div>
+
+                <!-- Recents Container -->
+                <div id="recentChatsGroup" class="space-y-1">
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-2 py-1">Recents</p>
+                    <div id="recentChatsList" class="space-y-0.5"></div>
+                </div>
             </div>
-        </div>
 
-        <!-- Bottom Controls & User Profile Badge (PINNED TO BOTTOM VIA mt-auto) -->
-        <div class="flex flex-col items-center space-y-1.5 w-full pt-3 mt-auto border-t border-slate-100 dark:border-slate-700/60 flex-none">
-            <!-- FAQs Toggle -->
-            <button onclick="switchTab('faq')" id="tab-faq" title="FAQs"
-                class="rail-btn text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white px-3">
-                <i class="fa-solid fa-circle-question text-sm flex-none w-5 text-center"></i>
-                <span class="rail-label text-xs ml-2.5 truncate">FAQs</span>
-                <span class="rail-tooltip bg-slate-900 text-white text-[11px] px-2.5 py-1 rounded-md shadow-lg">FAQs</span>
-            </button>
+            <!-- Bottom Controls & User Profile Badge (PINNED TO BOTTOM VIA mt-auto) -->
+            <div class="flex flex-col items-center space-y-1.5 w-full pt-3 mt-auto border-t border-slate-100 dark:border-slate-700/60 flex-none">
+                <!-- FAQs Toggle -->
+                <button onclick="switchTab('faq')" id="tab-faq" title="FAQs"
+                    class="rail-btn text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white px-3">
+                    <i class="fa-solid fa-circle-question text-sm flex-none w-5 text-center"></i>
+                    <span class="rail-label text-xs ml-2.5 truncate">FAQs</span>
+                    <span class="rail-tooltip bg-slate-900 text-white text-[11px] px-2.5 py-1 rounded-md shadow-lg">FAQs</span>
+                </button>
 
-            <!-- Theme Toggle -->
-            <button onclick="toggleTheme()" title="Toggle theme"
-                class="rail-btn text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition px-3">
-                <i id="themeIcon" class="fa-solid fa-moon text-sm flex-none w-5 text-center"></i>
-                <span class="rail-label text-xs ml-2.5 truncate">Theme</span>
-                <span class="rail-tooltip bg-slate-900 text-white text-[11px] px-2.5 py-1 rounded-md shadow-lg">Theme</span>
-            </button>
+                <!-- Theme Toggle -->
+                <button onclick="toggleTheme()" title="Toggle theme"
+                    class="rail-btn text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition px-3">
+                    <i id="themeIcon" class="fa-solid fa-moon text-sm flex-none w-5 text-center"></i>
+                    <span class="rail-label text-xs ml-2.5 truncate">Theme</span>
+                    <span class="rail-tooltip bg-slate-900 text-white text-[11px] px-2.5 py-1 rounded-md shadow-lg">Theme</span>
+                </button>
 
-            <!-- User Profile Button / Card -->
-            <button onclick="handleProfileClick()" id="userProfileBtn" title="User Profile"
-                class="rail-btn p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700/80 transition rounded-xl">
-                <div class="relative flex-none">
-                    <div id="userAvatar" class="w-7 h-7 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">
-                        S
-                    </div>
-                    <span id="userStatusDot" class="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 border border-white dark:border-slate-800 rounded-full"></span>
-                </div>
-
-                <div class="profile-details ml-2.5 text-left truncate flex-grow min-w-0 pr-1">
-                    <p id="sidebarUserName" class="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">Student</p>
-                    <p id="sidebarUserRole" class="text-[10px] text-slate-400 dark:text-slate-400 truncate">Guest User</p>
-                </div>
-
-                <span class="rail-tooltip bg-slate-900 text-white text-[11px] px-2.5 py-1 rounded-md shadow-lg" id="profileTooltip">Student Profile</span>
-            </button>
-        </div>
-    </aside>
-
-    <!-- Main Content Area -->
-    <div class="flex-grow flex flex-col h-full overflow-hidden w-full min-w-0">
-
-        <!-- ================= PERMANENT TOP HORIZONTAL HEADER BAR ================= -->
-        <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex-none z-30">
-            <div class="w-full px-2 sm:px-3 py-2.5 flex justify-between items-center">
-
-                <!-- Left Branding Block (StudyPal) & Active Chat Title -->
-                <div class="flex items-center space-x-2.5 truncate">
-                    <!-- Mobile Sidebar Toggle -->
-                    <button onclick="openMobileSidebar()" class="md:hidden p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition flex-none">
-                        <i class="fa-solid fa-bars text-lg"></i>
-                    </button>
-
-                    <!-- Always Visible Brand Logo & Title with Subtitle -->
-                    <div class="flex items-center space-x-2 flex-none">
-                        <div class="bg-blue-600 text-white p-2 rounded-xl shadow-sm flex items-center justify-center">
-                            <i class="fa-solid fa-graduation-cap text-base"></i>
+                <!-- User Profile Button / Card -->
+                <button onclick="handleProfileClick()" id="userProfileBtn" title="User Profile"
+                    class="rail-btn p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700/80 transition rounded-xl">
+                    <div class="relative flex-none">
+                        <div id="userAvatar" class="w-7 h-7 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                            S
                         </div>
-                        <div class="flex flex-col">
-                            <span class="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white leading-none">
-                                StudyPal
+                        <span id="userStatusDot" class="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 border border-white dark:border-slate-800 rounded-full"></span>
+                    </div>
+
+                    <div class="profile-details ml-2.5 text-left truncate flex-grow min-w-0 pr-1">
+                        <p id="sidebarUserName" class="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">Student</p>
+                        <p id="sidebarUserRole" class="text-[10px] text-slate-400 dark:text-slate-400 truncate">Active Student</p>
+                    </div>
+
+                    <span class="rail-tooltip bg-slate-900 text-white text-[11px] px-2.5 py-1 rounded-md shadow-lg" id="profileTooltip">Student Profile</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-grow flex flex-col h-full overflow-hidden w-full min-w-0">
+
+            <!-- ================= PERMANENT TOP HORIZONTAL HEADER BAR ================= -->
+            <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex-none z-30">
+                <div class="w-full px-2 sm:px-3 py-2.5 flex justify-between items-center">
+
+                    <!-- Left Branding Block (StudyPal) & Active Chat Title -->
+                    <div class="flex items-center space-x-2.5 truncate">
+                        <!-- Mobile Sidebar Toggle -->
+                        <button onclick="openMobileSidebar()" class="md:hidden p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition flex-none">
+                            <i class="fa-solid fa-bars text-lg"></i>
+                        </button>
+
+                        <!-- Always Visible Brand Logo & Title with Subtitle -->
+                        <div class="flex items-center space-x-2 flex-none">
+                            <div class="bg-blue-600 text-white p-2 rounded-xl shadow-sm flex items-center justify-center">
+                                <i class="fa-solid fa-graduation-cap text-base"></i>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white leading-none">
+                                    StudyPal
+                                </span>
+                                <span class="text-[10px] sm:text-[11px] font-medium text-blue-600 dark:text-blue-400 mt-0.5 leading-none">
+                                    University of Ghana AI Assistant
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Divider & Active Chat Subtitle -->
+                        <div class="hidden sm:flex items-center space-x-2.5 truncate pl-1 border-l border-slate-200 dark:border-slate-700">
+                            <span id="currentChatTitleHeader" class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 truncate max-w-[200px] lg:max-w-xs">
+                                New Conversation
                             </span>
-                            <span class="text-[10px] sm:text-[11px] font-medium text-blue-600 dark:text-blue-400 mt-0.5 leading-none">
-                                University of Ghana AI Assistant
-                            </span>
                         </div>
                     </div>
 
-                    <!-- Divider & Active Chat Subtitle -->
-                    <div class="hidden sm:flex items-center space-x-2.5 truncate pl-1 border-l border-slate-200 dark:border-slate-700">
-                        <span id="currentChatTitleHeader" class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 truncate max-w-[200px] lg:max-w-xs">
-                            New Conversation
-                        </span>
+                    <!-- Right Header Actions (Export & Sign Out) -->
+                    <div class="flex items-center space-x-2 flex-none ml-2">
+                        <button onclick="exportChatText()" title="Export content as Text"
+                            class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl font-medium transition flex items-center space-x-1.5">
+                            <i class="fa-solid fa-file-arrow-down text-blue-600 dark:text-blue-400"></i>
+                            <span class="hidden sm:inline">Export Chat</span>
+                        </button>
+                        <div id="authNavButtons" class="flex items-center space-x-2"></div>
                     </div>
                 </div>
+            </header>
 
-                <!-- Right Header Actions (Export & Sign In/Out) -->
-                <div class="flex items-center space-x-2 flex-none ml-2">
-                    <button onclick="exportChatText()" title="Export content as Text"
-                        class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl font-medium transition flex items-center space-x-1.5">
-                        <i class="fa-solid fa-file-arrow-down text-blue-600 dark:text-blue-400"></i>
-                        <span class="hidden sm:inline">Export Chat</span>
-                    </button>
-                    <div id="authNavButtons" class="flex items-center space-x-2"></div>
-                </div>
-            </div>
-        </header>
+            <!-- Dynamic Body Workspace -->
+            <main class="flex-grow max-w-5xl w-full mx-auto px-2.5 sm:px-4 overflow-hidden flex flex-col relative">
 
-        <!-- Dynamic Body Workspace -->
-        <main class="flex-grow max-w-5xl w-full mx-auto px-2.5 sm:px-4 overflow-hidden flex flex-col relative">
+                <!-- 1. CHAT QUERY TAB -->
+                <section id="content-query" class="flex-grow flex flex-col h-full overflow-hidden">
 
-            <!-- 1. CHAT QUERY TAB -->
-            <section id="content-query" class="flex-grow flex flex-col h-full overflow-hidden">
-
-                <!-- Scrollable Chat Feed -->
-                <div id="chatFeed" class="flex-grow overflow-y-auto chat-scroll py-4 sm:py-6 space-y-4 sm:space-y-6 max-w-4xl mx-auto w-full px-1 flex flex-col justify-start">
-                    <div id="emptyChatNotice" class="text-center my-auto py-6 space-y-2.5">
-                        <div class="inline-flex items-center justify-center p-3.5 bg-blue-50 dark:bg-blue-950/50 rounded-2xl mb-1 shadow-inner">
-                            <i class="fa-solid fa-sparkles text-2xl sm:text-3xl text-blue-600 dark:text-blue-400"></i>
+                    <!-- Scrollable Chat Feed -->
+                    <div id="chatFeed" class="flex-grow overflow-y-auto chat-scroll py-4 sm:py-6 space-y-4 sm:space-y-6 max-w-4xl mx-auto w-full px-1 flex flex-col justify-start">
+                        <div id="emptyChatNotice" class="text-center my-auto py-6 space-y-2.5">
+                            <div class="inline-flex items-center justify-center p-3.5 bg-blue-50 dark:bg-blue-950/50 rounded-2xl mb-1 shadow-inner">
+                                <i class="fa-solid fa-sparkles text-2xl sm:text-3xl text-blue-600 dark:text-blue-400"></i>
+                            </div>
+                            <h2 class="text-xl sm:text-3xl font-bold tracking-tight text-slate-800 dark:text-slate-100 px-2">
+                                Hello, <span id="welcomeUserName" class="text-blue-600 dark:text-blue-400">Student</span> 👋
+                            </h2>
+                            <p class="text-xs sm:text-base text-slate-500 dark:text-slate-400 font-normal max-w-md mx-auto leading-relaxed px-4">
+                                Ask a question or attach a document below to get started.
+                            </p>
                         </div>
-                        <h2 class="text-xl sm:text-3xl font-bold tracking-tight text-slate-800 dark:text-slate-100 px-2">
-                            Hello, <span id="welcomeUserName" class="text-blue-600 dark:text-blue-400">Student</span> 👋
-                        </h2>
-                        <p class="text-xs sm:text-base text-slate-500 dark:text-slate-400 font-normal max-w-md mx-auto leading-relaxed px-4">
-                            Ask a question or attach a document below to get started.
-                        </p>
                     </div>
-                </div>
 
-                <!-- Input Workspace Bottom Panel -->
-                <div class="flex-none py-2 sm:py-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800">
-                    <div class="max-w-3xl mx-auto space-y-2">
+                    <!-- Input Workspace Bottom Panel -->
+                    <div class="flex-none py-2 sm:py-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800">
+                        <div class="max-w-3xl mx-auto space-y-2">
 
-                        <!-- Tag Selection Bar -->
-                        <div class="flex items-center space-x-1.5 overflow-x-auto px-1 no-scrollbar" id="categoryOptions">
-                            <span class="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider mr-1 flex-none">Tag:</span>
-                            <button type="button" onclick="selectCategory('General')" class="cat-btn flex-none bg-blue-600 text-white px-2.5 py-0.5 rounded-full text-xs font-medium transition">General</button>
-                            <button type="button" onclick="selectCategory('Academics')" class="cat-btn flex-none bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition">Academics</button>
-                            <button type="button" onclick="selectCategory('Tuition & Fees')" class="cat-btn flex-none bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition">Tuition & Fees</button>
-                            <button type="button" onclick="selectCategory('Exams')" class="cat-btn flex-none bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition">Exams</button>
-                            <input type="hidden" id="categoryInput" value="General">
-                        </div>
-
-                        <!-- Form Input Box -->
-                        <form id="askForm">
-                            <!-- File Attachment Preview Pill -->
-                            <div id="filePreview" class="hidden mb-2 px-3.5 py-2 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-between text-xs border border-slate-200 dark:border-slate-700">
-                                <div class="flex items-center space-x-2 truncate">
-                                    <i class="fa-solid fa-paperclip text-blue-500"></i>
-                                    <span id="fileName" class="truncate font-medium text-slate-700 dark:text-slate-200"></span>
-                                    <span id="fileSize" class="text-slate-400 text-[10px]"></span>
-                                </div>
-                                <button type="button" onclick="removeAttachment()" class="text-slate-400 hover:text-rose-500 transition ml-2 p-1">
-                                    <i class="fa-solid fa-xmark"></i>
-                                </button>
+                            <!-- Tag Selection Bar -->
+                            <div class="flex items-center space-x-1.5 overflow-x-auto px-1 no-scrollbar" id="categoryOptions">
+                                <span class="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider mr-1 flex-none">Tag:</span>
+                                <button type="button" onclick="selectCategory('General')" class="cat-btn flex-none bg-blue-600 text-white px-2.5 py-0.5 rounded-full text-xs font-medium transition">General</button>
+                                <button type="button" onclick="selectCategory('Academics')" class="cat-btn flex-none bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition">Academics</button>
+                                <button type="button" onclick="selectCategory('Tuition & Fees')" class="cat-btn flex-none bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition">Tuition & Fees</button>
+                                <button type="button" onclick="selectCategory('Exams')" class="cat-btn flex-none bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition">Exams</button>
+                                <input type="hidden" id="categoryInput" value="General">
                             </div>
 
-                            <div class="flex items-end bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl shadow-md border border-slate-200 dark:border-slate-700 pl-3.5 sm:pl-4 pr-1.5 sm:pr-2 py-1.5 sm:py-2">
-                                <input type="file" id="fileInput" class="hidden" accept=".pdf,.txt,.docx,.png,.jpg,.jpeg" onchange="handleFileSelect(event)">
-                                
-                                <button type="button" onclick="document.getElementById('fileInput').click()" title="Attach file"
-                                    class="p-1.5 sm:p-2 rounded-full text-slate-400 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition flex-none mr-1">
-                                    <i class="fa-solid fa-paperclip text-xs sm:text-sm"></i>
-                                </button>
-
-                                <textarea id="questionInput" rows="1"
-                                    class="flex-grow bg-transparent dark:text-white focus:outline-none text-xs sm:text-sm resize-none py-1.5 max-h-32 sm:max-h-40"
-                                    placeholder="Ask anything or attach a document..."></textarea>
-
-                                <div class="flex items-center space-x-1 flex-none pl-1 sm:pl-2">
-                                    <span class="hidden md:inline text-[10px] font-medium text-slate-400 px-1 select-none">Llama 3.3 70B</span>
-                                    <button type="button" onclick="startVoiceInput()" id="micBtn" title="Dictate question"
-                                        class="p-1.5 sm:p-2 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-700 transition">
-                                        <i class="fa-solid fa-microphone text-xs sm:text-sm"></i>
-                                    </button>
-                                    <button type="submit" id="submitBtn" title="Ask AI"
-                                        class="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white w-8 h-8 sm:w-9 sm:h-9 rounded-full text-xs font-semibold shadow-sm flex items-center justify-center transition flex-none">
-                                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                            <!-- Form Input Box -->
+                            <form id="askForm">
+                                <!-- File Attachment Preview Pill -->
+                                <div id="filePreview" class="hidden mb-2 px-3.5 py-2 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-between text-xs border border-slate-200 dark:border-slate-700">
+                                    <div class="flex items-center space-x-2 truncate">
+                                        <i class="fa-solid fa-paperclip text-blue-500"></i>
+                                        <span id="fileName" class="truncate font-medium text-slate-700 dark:text-slate-200"></span>
+                                        <span id="fileSize" class="text-slate-400 text-[10px]"></span>
+                                    </div>
+                                    <button type="button" onclick="removeAttachment()" class="text-slate-400 hover:text-rose-500 transition ml-2 p-1">
+                                        <i class="fa-solid fa-xmark"></i>
                                     </button>
                                 </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </section>
 
-            <!-- 2. FAQS TAB -->
-            <section id="content-faq" class="hidden flex-grow overflow-y-auto py-4 sm:py-6 space-y-4 sm:space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 pb-3 border-b border-slate-200 dark:border-slate-700">
-                    <div>
-                        <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Frequently Asked Questions</h2>
-                        <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">Click any card to load it into the prompt.</p>
-                    </div>
-                    <div id="faqCategoryFilter" class="flex flex-wrap gap-1">
-                        <button onclick="filterFAQs('All')" class="faq-filter-btn bg-blue-600 text-white px-2.5 py-0.5 rounded-full text-xs font-medium transition">All</button>
-                        <button onclick="filterFAQs('Tuition & Fees')" class="faq-filter-btn bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition">Tuition</button>
-                        <button onclick="filterFAQs('Academics')" class="faq-filter-btn bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition">Academics</button>
-                        <button onclick="filterFAQs('Exams')" class="faq-filter-btn bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition">Exams</button>
-                    </div>
-                </div>
-                <div id="faqContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4"></div>
-            </section>
+                                <div class="flex items-end bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl shadow-md border border-slate-200 dark:border-slate-700 pl-3.5 sm:pl-4 pr-1.5 sm:pr-2 py-1.5 sm:py-2">
+                                    <input type="file" id="fileInput" class="hidden" accept=".pdf,.txt,.docx,.png,.jpg,.jpeg" onchange="handleFileSelect(event)">
+                                    
+                                    <button type="button" onclick="document.getElementById('fileInput').click()" title="Attach file"
+                                        class="p-1.5 sm:p-2 rounded-full text-slate-400 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition flex-none mr-1">
+                                        <i class="fa-solid fa-paperclip text-xs sm:text-sm"></i>
+                                    </button>
 
-        </main>
+                                    <textarea id="questionInput" rows="1"
+                                        class="flex-grow bg-transparent dark:text-white focus:outline-none text-xs sm:text-sm resize-none py-1.5 max-h-32 sm:max-h-40"
+                                        placeholder="Ask anything or attach a document..."></textarea>
+
+                                    <div class="flex items-center space-x-1 flex-none pl-1 sm:pl-2">
+                                        <span class="hidden md:inline text-[10px] font-medium text-slate-400 px-1 select-none">Llama 3.3 70B</span>
+                                        <button type="button" onclick="startVoiceInput()" id="micBtn" title="Dictate question"
+                                            class="p-1.5 sm:p-2 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-700 transition">
+                                            <i class="fa-solid fa-microphone text-xs sm:text-sm"></i>
+                                        </button>
+                                        <button type="submit" id="submitBtn" title="Ask AI"
+                                            class="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white w-8 h-8 sm:w-9 sm:h-9 rounded-full text-xs font-semibold shadow-sm flex items-center justify-center transition flex-none">
+                                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 2. FAQS TAB -->
+                <section id="content-faq" class="hidden flex-grow overflow-y-auto py-4 sm:py-6 space-y-4 sm:space-y-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 pb-3 border-b border-slate-200 dark:border-slate-700">
+                        <div>
+                            <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Frequently Asked Questions</h2>
+                            <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">Click any card to load it into the prompt.</p>
+                        </div>
+                        <div id="faqCategoryFilter" class="flex flex-wrap gap-1">
+                            <button onclick="filterFAQs('All')" class="faq-filter-btn bg-blue-600 text-white px-2.5 py-0.5 rounded-full text-xs font-medium transition">All</button>
+                            <button onclick="filterFAQs('Tuition & Fees')" class="faq-filter-btn bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition">Tuition</button>
+                            <button onclick="filterFAQs('Academics')" class="faq-filter-btn bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition">Academics</button>
+                            <button onclick="filterFAQs('Exams')" class="faq-filter-btn bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition">Exams</button>
+                        </div>
+                    </div>
+                    <div id="faqContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4"></div>
+                </section>
+
+            </main>
+        </div>
     </div>
+    <!-- ================= END APP SHELL ================= -->
 
-    <!-- Auth Modal -->
-    <div id="authModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-5 sm:p-6 shadow-2xl relative">
-            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
-            <h3 id="authModalTitle" class="text-lg sm:text-xl font-bold mb-4">Sign In</h3>
-            
-            <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-3.5">
-                <div id="nameFields" class="hidden grid grid-cols-2 gap-2.5">
+    <!-- ================= SIGN-IN GATE (default screen; shown whenever not authenticated) ================= -->
+    <div id="authModal" class="fixed inset-0 bg-gradient-to-br from-blue-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 z-50 flex items-center justify-center p-4">
+        <div class="w-full max-w-md">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center justify-center w-14 h-14 bg-blue-600 text-white rounded-2xl shadow-lg mb-3">
+                    <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold text-slate-900 dark:text-white">StudyPal</h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">University of Ghana AI Assistant</p>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 w-full rounded-2xl p-5 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-700">
+                <h3 id="authModalTitle" class="text-lg sm:text-xl font-bold mb-4">Sign In</h3>
+                
+                <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-3.5">
+                    <div id="nameFields" class="hidden grid grid-cols-2 gap-2.5">
+                        <div>
+                            <label class="block text-xs font-semibold mb-1">First Name</label>
+                            <input type="text" id="authFirstName" class="w-full p-2.5 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none placeholder:text-slate-400" placeholder="David">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold mb-1">Last Name</label>
+                            <input type="text" id="authLastName" class="w-full p-2.5 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none placeholder:text-slate-400" placeholder="Dev">
+                        </div>
+                    </div>
+
                     <div>
-                        <label class="block text-xs font-semibold mb-1">First Name</label>
-                        <input type="text" id="authFirstName" class="w-full p-2.5 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none placeholder:text-slate-400" placeholder="David">
+                        <label class="block text-xs font-semibold mb-1">Email Address</label>
+                        <input type="email" id="authEmail" required class="w-full p-2.5 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold mb-1">Last Name</label>
-                        <input type="text" id="authLastName" class="w-full p-2.5 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none placeholder:text-slate-400" placeholder="Dev">
+                        <label class="block text-xs font-semibold mb-1">Password</label>
+                        <div class="relative">
+                            <input type="password" id="authPassword" required class="w-full p-2.5 pr-9 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none">
+                            <button type="button" onclick="togglePasswordVisibility('authPassword', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
+                                <i class="fa-solid fa-eye text-xs"></i>
+                            </button>
+                        </div>
                     </div>
+                    <div id="rememberMeRow" class="flex items-center space-x-2">
+                        <input type="checkbox" id="rememberMe" class="w-3.5 h-3.5 accent-blue-600 cursor-pointer">
+                        <label for="rememberMe" class="text-xs text-slate-500 dark:text-slate-400 cursor-pointer select-none">Remember me</label>
+                    </div>
+                    <button type="submit" id="authSubmitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg text-xs sm:text-sm font-semibold shadow-md">Continue</button>
+                </form>
+
+                <div id="confirmStep" class="hidden space-y-3.5 mt-4">
+                    <p class="text-xs text-slate-500">Please enter the 6-digit verification code sent to your email.</p>
+                    <input type="text" id="confirmCode" placeholder="6-digit code" class="w-full p-2.5 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none">
+                    <button onclick="confirmSignUp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-lg text-xs sm:text-sm font-semibold shadow-md">Verify Account</button>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold mb-1">Email Address</label>
-                    <input type="email" id="authEmail" required class="w-full p-2.5 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold mb-1">Password</label>
-                    <input type="password" id="authPassword" required class="w-full p-2.5 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none">
-                </div>
-                <button type="submit" id="authSubmitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg text-xs sm:text-sm font-semibold shadow-md">Continue</button>
-            </form>
-
-            <div id="confirmStep" class="hidden space-y-3.5 mt-4">
-                <p class="text-xs text-slate-500">Please enter the 6-digit verification code sent to your email.</p>
-                <input type="text" id="confirmCode" placeholder="6-digit code" class="w-full p-2.5 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none">
-                <button onclick="confirmSignUp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-lg text-xs sm:text-sm font-semibold shadow-md">Verify Account</button>
+                <p class="text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
+                    <span id="authSwitchPrompt">Don't have an account?</span>
+                    <button type="button" onclick="toggleAuthMode()" id="authSwitchBtn" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline ml-1">Sign Up</button>
+                </p>
             </div>
         </div>
     </div>
+    <!-- ================= END SIGN-IN GATE ================= -->
 
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-xl shadow-xl z-50 text-xs sm:text-sm max-w-xs sm:max-w-md">
@@ -364,22 +393,24 @@
         };
 
         const userPool = new AmazonCognitoIdentity.CognitoUserPool({ UserPoolId: CONFIG.UserPoolId, ClientId: CONFIG.ClientId });
-        let idToken = localStorage.getItem("studypal_id_token") || null;
+
+        // ================= AUTH / SESSION STATE =================
+        let idToken = null;                 // Only ever set from a verified, live Cognito session
+        let currentUserId = null;           // Cognito 'sub' claim — used to namespace this user's local chat history
         let userDisplayName = localStorage.getItem("studypal_user_name") || "Student";
         let currentAuthMode = 'login';
         let loadedFaqs = [];
         let selectedFile = null;
 
-        // Chat session state variables
-        let chatSessions = JSON.parse(localStorage.getItem("studypal_chat_sessions") || "[]");
-        let activeChatId = localStorage.getItem("studypal_active_chat_id") || null;
+        // Chat session state — populated ONLY after we know which user is signed in (see loadSessionsForCurrentUser)
+        let chatSessions = [];
+        let activeChatId = null;
         let activeTab = 'query';
 
         document.addEventListener("DOMContentLoaded", () => {
             initTheme(); // Restore theme preference on load
             checkUserSession();
             loadFAQs();
-            initializeChatSessions();
 
             const qInput = document.getElementById('questionInput');
             
@@ -443,10 +474,54 @@
             }
         }
 
+        // ================= PER-USER STORAGE HELPERS =================
+        // Namespaces every localStorage key by the signed-in user's Cognito 'sub', so
+        // switching accounts on the same device/browser can never see another user's chats.
+        function getStorageKey(base) {
+            return `studypal_${base}_${currentUserId || 'anonymous'}`;
+        }
+
+        function getUserIdFromToken(token) {
+            try {
+                const payload = token.split('.')[1];
+                const decoded = JSON.parse(
+                    decodeURIComponent(
+                        atob(payload.replace(/-/g, '+').replace(/_/g, '/'))
+                            .split('')
+                            .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+                            .join('')
+                    )
+                );
+                return decoded.sub || null;
+            } catch (e) {
+                console.error("Failed to decode ID token:", e);
+                return null;
+            }
+        }
+
+        function loadSessionsForCurrentUser() {
+            chatSessions = JSON.parse(localStorage.getItem(getStorageKey('chat_sessions')) || "[]");
+            activeChatId = localStorage.getItem(getStorageKey('active_chat_id')) || null;
+        }
+
+        // ================= AUTH GATE VISIBILITY =================
+        function updateAuthGateVisibility() {
+            const shell = document.getElementById('appShell');
+            if (idToken) {
+                closeAuthModal();
+                shell.classList.remove('hidden');
+                shell.classList.add('flex');
+            } else {
+                shell.classList.add('hidden');
+                shell.classList.remove('flex');
+                openAuthModal(currentAuthMode === 'signup' ? 'signup' : 'login');
+            }
+        }
+
         // ================= CHAT SESSION MANAGEMENT =================
         function saveSessionsToStorage() {
-            localStorage.setItem("studypal_chat_sessions", JSON.stringify(chatSessions));
-            if (activeChatId) localStorage.setItem("studypal_active_chat_id", activeChatId);
+            localStorage.setItem(getStorageKey('chat_sessions'), JSON.stringify(chatSessions));
+            if (activeChatId) localStorage.setItem(getStorageKey('active_chat_id'), activeChatId);
         }
 
         function initializeChatSessions() {
@@ -518,6 +593,18 @@
         function deleteChatSession(chatId, e) {
             if (e) e.stopPropagation();
             if (!confirm("Are you sure you want to delete this conversation?")) return;
+
+            const session = chatSessions.find(s => s.id === chatId);
+
+            // Delete every message in this session from DynamoDB so they don't reappear on other devices
+            if (idToken && session && session.messages.length) {
+                session.messages.forEach(msg => {
+                    fetch(`${CONFIG.ApiUrl}/question/${msg.id}`, {
+                        method: "DELETE",
+                        headers: { "Authorization": `Bearer ${idToken}` }
+                    }).catch(err => console.error("Remote delete failed for", msg.id, err));
+                });
+            }
 
             chatSessions = chatSessions.filter(s => s.id !== chatId);
 
@@ -806,30 +893,36 @@
             document.getElementById('sidebarUserName').innerText = name;
             document.getElementById('profileTooltip').innerText = name;
             document.getElementById('userAvatar').innerText = name.charAt(0).toUpperCase();
-
-            const isGuest = !idToken;
-            document.getElementById('sidebarUserRole').innerText = isGuest ? "Guest User" : "Active Student";
+            document.getElementById('sidebarUserRole').innerText = idToken ? "Active Student" : "Signed Out";
             
             const dot = document.getElementById('userStatusDot');
-            if (isGuest) {
-                dot.className = "absolute bottom-0 right-0 w-2 h-2 bg-amber-400 border border-white dark:border-slate-800 rounded-full";
-            } else {
+            if (idToken) {
                 dot.className = "absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 border border-white dark:border-slate-800 rounded-full";
+            } else {
+                dot.className = "absolute bottom-0 right-0 w-2 h-2 bg-amber-400 border border-white dark:border-slate-800 rounded-full";
             }
         }
 
+        // ================= SESSION VERIFICATION (SOURCE OF TRUTH: LIVE COGNITO SESSION ONLY) =================
         function checkUserSession() {
             const cognitoUser = userPool.getCurrentUser();
-            
+
             if (cognitoUser != null) {
                 cognitoUser.getSession((err, session) => {
-                    if (err || !session.isValid()) { 
-                        logout(); 
-                        return; 
+                    if (err || !session.isValid()) {
+                        logout();
+                        return;
                     }
+
                     idToken = session.getIdToken().getJwtToken();
                     localStorage.setItem("studypal_id_token", idToken);
-                    
+                    currentUserId = getUserIdFromToken(idToken);
+
+                    // Load this user's own chat history (namespaced) and resume normally on a page reload
+                    loadSessionsForCurrentUser();
+                    initializeChatSessions();
+                    fetchRemoteHistory();
+
                     cognitoUser.getUserAttributes((err, attributes) => {
                         let name = "Student";
                         if (attributes) {
@@ -845,23 +938,25 @@
                     });
 
                     renderNavAuth();
+                    updateAuthGateVisibility();
                 });
-            } else if (idToken) {
-                updateUIWithUserInfo(userDisplayName);
-                renderNavAuth();
             } else {
+                // No live Cognito session on this device/browser — never trust a leftover local token.
+                idToken = null;
+                currentUserId = null;
+                localStorage.removeItem("studypal_id_token");
+                chatSessions = [];
+                activeChatId = null;
+
                 updateUIWithUserInfo("Student");
                 renderNavAuth();
+                updateAuthGateVisibility();
             }
         }
 
         function handleProfileClick() {
             closeMobileSidebar();
-            if (!idToken) {
-                openAuthModal('login');
-            } else {
-                showToast(`Logged in as ${userDisplayName}`);
-            }
+            showToast(`Signed in as ${userDisplayName}`);
         }
 
         function renderNavAuth() {
@@ -871,11 +966,24 @@
                     <button onclick="logout()" class="bg-rose-500 hover:bg-rose-600 text-white text-xs px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl font-semibold shadow-sm transition">Sign Out</button>
                 `;
             } else {
-                container.innerHTML = `
-                    <button onclick="openAuthModal('login')" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-xs px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl font-semibold transition">Sign In</button>
-                    <button onclick="openAuthModal('signup')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl font-semibold shadow-sm transition">Sign Up</button>
-                `;
+                container.innerHTML = "";
             }
+        }
+
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        function toggleAuthMode() {
+            openAuthModal(currentAuthMode === 'login' ? 'signup' : 'login');
         }
 
         function openAuthModal(mode) {
@@ -887,15 +995,28 @@
             const nameFields = document.getElementById('nameFields');
             const firstNameInput = document.getElementById('authFirstName');
             const lastNameInput = document.getElementById('authLastName');
+            const switchPrompt = document.getElementById('authSwitchPrompt');
+            const switchBtn = document.getElementById('authSwitchBtn');
 
             if (mode === 'signup') {
                 nameFields.classList.remove('hidden');
                 firstNameInput.required = true;
                 lastNameInput.required = true;
+                if (switchPrompt) switchPrompt.innerText = "Already have an account?";
+                if (switchBtn) switchBtn.innerText = "Sign In";
+                document.getElementById('rememberMeRow').classList.add('hidden');
             } else {
                 nameFields.classList.add('hidden');
                 firstNameInput.required = false;
                 lastNameInput.required = false;
+                if (switchPrompt) switchPrompt.innerText = "Don't have an account?";
+                if (switchBtn) switchBtn.innerText = "Sign Up";
+                document.getElementById('rememberMeRow').classList.remove('hidden');
+                const savedEmail = localStorage.getItem('studypal_remembered_email');
+                if (savedEmail) {
+                    document.getElementById('authEmail').value = savedEmail;
+                    document.getElementById('rememberMe').checked = true;
+                }
             }
 
             document.getElementById('authModal').classList.remove('hidden');
@@ -930,10 +1051,21 @@
                 const authenticationDetails = new AmazonCognitoIdentity.AuthenticationDetails({ Username: email, Password: password });
                 const cognitoUser = new AmazonCognitoIdentity.CognitoUser({ Username: email, Pool: userPool });
 
+                const rememberMe = document.getElementById('rememberMe').checked;
+                if (rememberMe) {
+                    localStorage.setItem('studypal_remembered_email', email);
+                } else {
+                    localStorage.removeItem('studypal_remembered_email');
+                }
+
                 cognitoUser.authenticateUser(authenticationDetails, {
                     onSuccess: (result) => {
                         idToken = result.getIdToken().getJwtToken();
                         localStorage.setItem("studypal_id_token", idToken);
+                        currentUserId = getUserIdFromToken(idToken);
+
+                        // Load (but don't auto-open) this user's existing history, then always start fresh on sign-in
+                        loadSessionsForCurrentUser();
 
                         cognitoUser.getUserAttributes((err, attributes) => {
                             let displayName = formatDisplayName(email);
@@ -946,7 +1078,9 @@
                             updateUIWithUserInfo(displayName);
                         });
 
-                        closeAuthModal();
+                        createNewChat(true); // Always welcome into a brand-new chat on explicit sign-in
+                        fetchRemoteHistory();
+                        updateAuthGateVisibility();
                         renderNavAuth();
                         showToast("Signed in successfully!");
                     },
@@ -978,9 +1112,13 @@
             localStorage.removeItem("studypal_id_token");
             localStorage.removeItem("studypal_user_name");
             idToken = null;
+            currentUserId = null;
+            chatSessions = [];
+            activeChatId = null;
 
             updateUIWithUserInfo("Student");
             renderNavAuth();
+            updateAuthGateVisibility();
             showToast("Signed out.");
         }
 
@@ -1015,6 +1153,18 @@
 
         async function deleteQuestion(questionId) {
             if (!confirm("Are you sure you want to delete this message pair?")) return;
+
+            // Sync delete to backend so it doesn't reappear on other devices
+            if (idToken) {
+                try {
+                    await fetch(`${CONFIG.ApiUrl}/question/${questionId}`, {
+                        method: "DELETE",
+                        headers: { "Authorization": `Bearer ${idToken}` }
+                    });
+                } catch (err) {
+                    console.error("Remote delete failed:", err);
+                }
+            }
 
             const session = chatSessions.find(s => s.id === activeChatId);
             if (session) {
@@ -1118,7 +1268,12 @@
                         "Content-Type": "application/json", 
                         "Authorization": `Bearer ${idToken}` 
                     },
-                    body: JSON.stringify({ question: newText, category })
+                    body: JSON.stringify({ 
+                        question: newText, 
+                        category,
+                        chatId: activeChatId,
+                        chatTitle: (chatSessions.find(s => s.id === activeChatId) || {}).title
+                    })
                 });
 
                 const result = await res.json();
@@ -1162,7 +1317,7 @@
             e.preventDefault();
             if (!idToken) { 
                 showToast("Please Sign In first to ask questions!", true); 
-                openAuthModal('login'); 
+                updateAuthGateVisibility();
                 return; 
             }
 
@@ -1223,7 +1378,9 @@
                         question: displayQuestionText, 
                         category: category,
                         attachment: currentAttachment,
-                        history: history
+                        history: history,
+                        chatId: activeChatId,
+                        chatTitle: session ? session.title : "New Conversation"
                     })
                 });
 
@@ -1290,6 +1447,66 @@
                 chatFeed.scrollTop = chatFeed.scrollHeight;
             }
         });
+
+        // ================= CROSS-DEVICE HISTORY SYNC =================
+        async function fetchRemoteHistory() {
+            if (!idToken) return;
+            try {
+                const res = await fetch(`${CONFIG.ApiUrl}/question`, {
+                    headers: { "Authorization": `Bearer ${idToken}` }
+                });
+                const result = await res.json();
+                const items = result.data || [];
+                if (!items.length) return;
+
+                const grouped = {};
+                items.forEach(item => {
+                    const cid = item.chatId || 'legacy_history';
+                    if (!grouped[cid]) {
+                        grouped[cid] = {
+                            id: cid,
+                            title: item.chatTitle || (cid === 'legacy_history' ? 'Imported History' : 'Conversation'),
+                            pinned: false,
+                            createdAt: item.createdAt,
+                            messages: []
+                        };
+                    }
+                    grouped[cid].messages.push({
+                        id: item.id,
+                        question: item.question,
+                        answer: item.answer,
+                        category: item.category,
+                        fileName: item.fileName || ''
+                    });
+                    if (item.createdAt < grouped[cid].createdAt) {
+                        grouped[cid].createdAt = item.createdAt;
+                    }
+                });
+
+                const remoteSessions = Object.values(grouped).sort(
+                    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+                );
+
+                remoteSessions.forEach(remote => {
+                    const localMatch = chatSessions.find(s => s.id === remote.id);
+                    if (localMatch) remote.pinned = localMatch.pinned;
+                });
+
+                const localOnlyEmpty = chatSessions.filter(
+                    s => !remoteSessions.find(r => r.id === s.id) && s.messages.length === 0
+                );
+
+                chatSessions = [...localOnlyEmpty, ...remoteSessions];
+                saveSessionsToStorage();
+                renderChatHistoryTree();
+
+                if (activeChatId && chatSessions.find(s => s.id === activeChatId)?.messages.length) {
+                    loadChatFeed(activeChatId);
+                }
+            } catch (err) {
+                console.error("Failed to fetch remote chat history:", err);
+            }
+        }
 
         // ================= FAQS =================
         async function loadFAQs() {
