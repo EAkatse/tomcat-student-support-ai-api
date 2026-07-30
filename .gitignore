@@ -1,0 +1,70 @@
+# Virtual environment
+venv/
+env/
+*.venv
+
+# SAM build artifacts
+.aws-sam/
+package.zip
+
+# Sensitive config
+samconfig.toml
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Vendored/installed packages (should come from requirements.txt, not be committed)
+docx/
+et_xmlfile/
+et_xmlfile-*.dist-info/
+lxml/
+lxml-*.dist-info/
+openpyxl/
+openpyxl-*.dist-info/
+pypdf/
+pypdf-*.dist-info/
+python_docx-*.dist-info/
+typing_extensions/
+typing_extensions.py
+typing_extensions-*.dist-info/
+httpx/
+httpx-*.dist-info/
+httpcore/
+httpcore-*.dist-info/
+annotated_types/
+annotated_types-*.dist-info/
+anyio/
+anyio-*.dist-info/
+certifi/
+certifi-*.dist-info/
+distro/
+distro-*.dist-info/
+h11/
+h11-*.dist-info/
+idna/
+idna-*.dist-info/
+jiter/
+jiter-*.dist-info/
+openai/
+openai-*.dist-info/
+pydantic/
+pydantic-*.dist-info/
+pydantic_core/
+pydantic_core-*.dist-info/
+sniffio/
+sniffio-*.dist-info/
+tqdm/
+tqdm-*.dist-info/
+typing_inspection/
+typing_inspection-*.dist-info/
+bin/
+
+# CloudFront CLI config dumps
+dist-config.json
+dist-config-disabled.json
+
+# OS files
+.DS_Store
+Thumbs.db
