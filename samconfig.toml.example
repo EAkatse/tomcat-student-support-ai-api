@@ -1,0 +1,12 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "student-support-ai-system"
+resolve_s3 = true
+s3_prefix = "student-support-ai-system"
+capabilities = "CAPABILITY_IAM"
+image_repositories = []
+confirm_changeset = true
+parameter_overrides = "GroqApiKey=REPLACE_WITH_YOUR_GROQ_KEY"
+
+[default.global.parameters]
+region = "us-east-1"
