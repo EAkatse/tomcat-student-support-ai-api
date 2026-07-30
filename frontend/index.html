@@ -918,9 +918,11 @@
                     localStorage.setItem("studypal_id_token", idToken);
                     currentUserId = getUserIdFromToken(idToken);
 
-                    // Load this user's own chat history (namespaced) and resume normally on a page reload
+                    // Always let fetchRemoteHistory decide what to open
+                    // It is the single source of truth for session state on every load
                     loadSessionsForCurrentUser();
-                    initializeChatSessions();
+                    renderNavAuth();
+                    updateAuthGateVisibility();
                     fetchRemoteHistory();
 
                     cognitoUser.getUserAttributes((err, attributes) => {
@@ -1064,7 +1066,6 @@
                         localStorage.setItem("studypal_id_token", idToken);
                         currentUserId = getUserIdFromToken(idToken);
 
-                        // Load (but don't auto-open) this user's existing history, then always start fresh on sign-in
                         loadSessionsForCurrentUser();
 
                         cognitoUser.getUserAttributes((err, attributes) => {
@@ -1078,10 +1079,9 @@
                             updateUIWithUserInfo(displayName);
                         });
 
-                        createNewChat(true); // Always welcome into a brand-new chat on explicit sign-in
-                        fetchRemoteHistory();
-                        updateAuthGateVisibility();
                         renderNavAuth();
+                        updateAuthGateVisibility();
+                        fetchRemoteHistory();
                         showToast("Signed in successfully!");
                     },
                     onFailure: (err) => { showToast(err.message || JSON.stringify(err), true); }
@@ -1449,7 +1449,7 @@
         });
 
         // ================= CROSS-DEVICE HISTORY SYNC =================
-        async function fetchRemoteHistory() {
+        async function fetchRemoteHistory(freshLogin = false) {
             if (!idToken) return;
             try {
                 const res = await fetch(`${CONFIG.ApiUrl}/question`, {
@@ -1457,15 +1457,21 @@
                 });
                 const result = await res.json();
                 const items = result.data || [];
-                if (!items.length) return;
 
+                if (!items.length) {
+                    // No history in DB — always open a fresh chat
+                    createNewChat(true);
+                    return;
+                }
+
+                // Group flat DynamoDB items into session objects by chatId
                 const grouped = {};
                 items.forEach(item => {
                     const cid = item.chatId || 'legacy_history';
                     if (!grouped[cid]) {
                         grouped[cid] = {
                             id: cid,
-                            title: item.chatTitle || (cid === 'legacy_history' ? 'Imported History' : 'Conversation'),
+                            title: item.chatTitle || (cid === 'legacy_history' ? 'Previous Conversations' : 'Conversation'),
                             pinned: false,
                             createdAt: item.createdAt,
                             messages: []
@@ -1478,33 +1484,35 @@
                         category: item.category,
                         fileName: item.fileName || ''
                     });
-                    if (item.createdAt < grouped[cid].createdAt) {
+                    // Use the most recent message timestamp to represent the session
+                    if (item.createdAt > grouped[cid].createdAt) {
                         grouped[cid].createdAt = item.createdAt;
                     }
                 });
 
+                // Sort sessions newest first
                 const remoteSessions = Object.values(grouped).sort(
                     (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
                 );
 
+                // Preserve pinned state from any existing local sessions
                 remoteSessions.forEach(remote => {
-                    const localMatch = chatSessions.find(s => s.id === remote.id);
-                    if (localMatch) remote.pinned = localMatch.pinned;
+                    const local = chatSessions.find(s => s.id === remote.id);
+                    if (local) remote.pinned = local.pinned;
                 });
 
-                const localOnlyEmpty = chatSessions.filter(
-                    s => !remoteSessions.find(r => r.id === s.id) && s.messages.length === 0
-                );
-
-                chatSessions = [...localOnlyEmpty, ...remoteSessions];
+                // Remote is the source of truth — replace local sessions entirely
+                chatSessions = remoteSessions;
+                activeChatId = remoteSessions[0].id;
                 saveSessionsToStorage();
                 renderChatHistoryTree();
+                loadChatFeed(activeChatId);
 
-                if (activeChatId && chatSessions.find(s => s.id === activeChatId)?.messages.length) {
-                    loadChatFeed(activeChatId);
-                }
             } catch (err) {
                 console.error("Failed to fetch remote chat history:", err);
+                if (!chatSessions.find(s => s.messages.length)) {
+                    createNewChat(true);
+                }
             }
         }
 

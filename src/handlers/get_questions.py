@@ -28,9 +28,9 @@ def handler(event, context):
         response = table.scan()
         items = response.get('Items', [])
 
-        # Filter items for current user if authenticated
+        # Return only items that explicitly belong to this user
         if user_id:
-            items = [item for item in items if item.get('userId') == user_id or 'userId' not in item]
+            items = [item for item in items if item.get('userId') == user_id]
 
         # Sort newest first based on createdAt timestamp
         items.sort(key=lambda x: x.get('createdAt', ''), reverse=True)
