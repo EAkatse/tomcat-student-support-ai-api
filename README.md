@@ -154,6 +154,7 @@ region = "us-east-1"
 
 ```bash
 sam build && sam deploy --guided
+git clone https://github.com/EAkatse/tomcat-student-support-ai-api
 ```
 
 #### Terminal Interactive Prompts
@@ -223,3 +224,4 @@ sam logs -n AskQuestionFunction --stack-name student-support-ai-system --tail
 ```bash
 sam build && sam deploy
 ```
+> **EduAssist AI** is a production-ready serverless application demonstrating modern cloud architecture, AI integration, DevOps practices, and scalable software engineering principles.
