@@ -1,0 +1,48 @@
+name: Deploy StudyPal AI (Access Keys)
+
+on:
+  push:
+    branches: [feature/david]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: aws-actions/setup-sam@v2
+
+      - name: Configure AWS credentials (Access Keys)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Copy samconfig
+        run: cp samconfig.toml.example samconfig.toml
+
+      - run: sam build
+
+      - name: Deploy
+        run: |
+          sam deploy \
+            --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --parameter-overrides "GroqApiKey=${{ secrets.GROQ_API_KEY }}"
+
+      - name: Sync frontend to S3
+        run: |
+          BUCKET=$(aws cloudformation describe-stacks \
+            --stack-name student-support-ai-system \
+            --query "Stacks[0].Outputs[?OutputKey=='FrontendS3Bucket'].OutputValue" \
+            --output text)
+          aws s3 cp frontend/index.html s3://$BUCKET/
