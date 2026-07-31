@@ -26,7 +26,7 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          # FIXED: Swapped from secrets to the exact variable name in your settings
+          # FIXED: Updated to target your exact Repository Variable name
           role-to-assume: ${{ vars.TOMCAT_STUDYPAL_S3_CLOUDFRONT_ROLE }}
           aws-region: us-east-1
 
@@ -45,6 +45,7 @@ jobs:
       - name: Sync frontend to S3
         working-directory: .
         run: |
+          # FIXED: Added [0] index to Stacks array to prevent query evaluation errors
           BUCKET=$(aws cloudformation describe-stacks \
             --stack-name student-support-ai-system \
             --query "Stacks[0].Outputs[?OutputKey=='FrontendS3Bucket'].OutputValue" \
