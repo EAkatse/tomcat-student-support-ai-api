@@ -29,6 +29,10 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1
 
+      - name: Debug repo structure
+        working-directory: .
+        run: ls -la
+        
       - name: Copy samconfig
         run: cp samconfig.toml.example samconfig.toml
 
