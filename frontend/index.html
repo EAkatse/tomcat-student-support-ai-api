@@ -357,9 +357,12 @@
                             </button>
                         </div>
                     </div>
-                    <div id="rememberMeRow" class="flex items-center space-x-2">
-                        <input type="checkbox" id="rememberMe" class="w-3.5 h-3.5 accent-blue-600 cursor-pointer">
-                        <label for="rememberMe" class="text-xs text-slate-500 dark:text-slate-400 cursor-pointer select-none">Remember me</label>
+                    <div id="rememberMeRow" class="flex items-center justify-between">
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="rememberMe" class="w-3.5 h-3.5 accent-blue-600 cursor-pointer">
+                            <label for="rememberMe" class="text-xs text-slate-500 dark:text-slate-400 cursor-pointer select-none">Remember me</label>
+                        </div>
+                        <button type="button" onclick="openForgotPassword()" class="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline">Forgot password?</button>
                     </div>
                     <button type="submit" id="authSubmitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg text-xs sm:text-sm font-semibold shadow-md">Continue</button>
                 </form>
@@ -368,6 +371,32 @@
                     <p class="text-xs text-slate-500">Please enter the 6-digit verification code sent to your email.</p>
                     <input type="text" id="confirmCode" placeholder="6-digit code" class="w-full p-2.5 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none">
                     <button onclick="confirmSignUp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-lg text-xs sm:text-sm font-semibold shadow-md">Verify Account</button>
+                </div>
+
+                <!-- Forgot Password Step 1: enter email to receive reset code -->
+                <div id="forgotStep" class="hidden space-y-3.5 mt-4">
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Enter your account email and we'll send a reset code.</p>
+                    <input type="email" id="resetEmail" placeholder="Email address" class="w-full p-2.5 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none">
+                    <button onclick="sendResetCode()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg text-xs sm:text-sm font-semibold shadow-md">Send Reset Code</button>
+                    <p class="text-center text-xs text-slate-500 dark:text-slate-400">
+                        <button type="button" onclick="openAuthModal('login')" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline">Back to Sign In</button>
+                    </p>
+                </div>
+
+                <!-- Forgot Password Step 2: enter code + new password -->
+                <div id="resetStep" class="hidden space-y-3.5 mt-4">
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Enter the 6-digit code sent to your email and choose a new password.</p>
+                    <input type="text" id="resetCode" placeholder="6-digit code" class="w-full p-2.5 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none">
+                    <div class="relative">
+                        <input type="password" id="resetNewPassword" placeholder="New password" class="w-full p-2.5 pr-9 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none">
+                        <button type="button" onclick="togglePasswordVisibility('resetNewPassword', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
+                            <i class="fa-solid fa-eye text-xs"></i>
+                        </button>
+                    </div>
+                    <button onclick="confirmResetPassword()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-lg text-xs sm:text-sm font-semibold shadow-md">Reset Password</button>
+                    <p class="text-center text-xs text-slate-500 dark:text-slate-400">
+                        <button type="button" onclick="openAuthModal('login')" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline">Back to Sign In</button>
+                    </p>
                 </div>
 
                 <p class="text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
@@ -993,6 +1022,9 @@
             document.getElementById('authModalTitle').innerText = mode === 'login' ? 'Sign In' : 'Create Account';
             document.getElementById('confirmStep').classList.add('hidden');
             document.getElementById('authForm').classList.remove('hidden');
+            document.getElementById('forgotStep').classList.add('hidden');
+            document.getElementById('resetStep').classList.add('hidden');
+            document.getElementById('authSwitchPrompt').parentElement.classList.remove('hidden');
             
             const nameFields = document.getElementById('nameFields');
             const firstNameInput = document.getElementById('authFirstName');
@@ -1098,6 +1130,53 @@
                 if (err) { showToast(err.message, true); return; }
                 showToast("Account verified! You can now Sign In.");
                 openAuthModal('login');
+            });
+        }
+
+        // ================= PASSWORD RESET =================
+        function openForgotPassword() {
+            document.getElementById('authModalTitle').innerText = 'Reset Password';
+            document.getElementById('authForm').classList.add('hidden');
+            document.getElementById('confirmStep').classList.add('hidden');
+            document.getElementById('resetStep').classList.add('hidden');
+            document.getElementById('authSwitchPrompt').parentElement.classList.add('hidden');
+            // Pre-fill reset email from whatever the user already typed
+            const existingEmail = document.getElementById('authEmail').value;
+            if (existingEmail) document.getElementById('resetEmail').value = existingEmail;
+            document.getElementById('forgotStep').classList.remove('hidden');
+        }
+
+        function sendResetCode() {
+            const email = document.getElementById('resetEmail').value.trim();
+            if (!email) { showToast('Please enter your email address.', true); return; }
+
+            const cognitoUser = new AmazonCognitoIdentity.CognitoUser({ Username: email, Pool: userPool });
+            cognitoUser.forgotPassword({
+                onSuccess: () => {},
+                onFailure: (err) => { showToast(err.message || 'Failed to send reset code.', true); },
+                inputVerificationCode: () => {
+                    showToast('Reset code sent to your email.');
+                    document.getElementById('forgotStep').classList.add('hidden');
+                    document.getElementById('resetStep').classList.remove('hidden');
+                    document.getElementById('authModalTitle').innerText = 'Set New Password';
+                }
+            });
+        }
+
+        function confirmResetPassword() {
+            const email = document.getElementById('resetEmail').value.trim();
+            const code = document.getElementById('resetCode').value.trim();
+            const newPassword = document.getElementById('resetNewPassword').value;
+
+            if (!code || !newPassword) { showToast('Please fill in all fields.', true); return; }
+
+            const cognitoUser = new AmazonCognitoIdentity.CognitoUser({ Username: email, Pool: userPool });
+            cognitoUser.confirmPassword(code, newPassword, {
+                onSuccess: () => {
+                    showToast('Password reset successfully! Please sign in.');
+                    openAuthModal('login');
+                },
+                onFailure: (err) => { showToast(err.message || 'Reset failed. Check your code and try again.', true); }
             });
         }
 
