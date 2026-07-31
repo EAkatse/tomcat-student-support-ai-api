@@ -32,7 +32,7 @@ jobs:
       - name: Debug repo structure
         working-directory: .
         run: ls -la
-        
+
       - name: Copy samconfig
         run: cp samconfig.toml.example samconfig.toml
 
