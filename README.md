@@ -1,6 +1,6 @@
-# 🎓 StudyPal AI — Serverless Student Support Platform
+# StudyPal AI — Serverless Student Support Platform
 
-## 📖 System Overview
+## System Overview
 
 StudyPal AI is an enterprise-grade, serverless artificial intelligence application built on Amazon Web Services (AWS) and powered by the Groq Large Language Model (LLM) inference engine. The platform is designed to automate student support operations by providing instant, accurate answers to academic, administrative, financial, and examination inquiries.
 
@@ -8,7 +8,7 @@ By leveraging cloud-native serverless architecture, StudyPal AI eliminates fixed
 
 ---
 
-## 🏗️ End-to-End System Architecture
+## End-to-End System Architecture
 
 The StudyPal AI infrastructure operates on a fully decoupled, serverless model:
 
@@ -34,7 +34,7 @@ The StudyPal AI infrastructure operates on a fully decoupled, serverless model:
 
 ---
 
-## ✨ Core Platform Features
+## Core Platform Features
 
 StudyPal AI includes a comprehensive set of features designed to enhance student engagement and automate inquiry handling:
 
@@ -65,7 +65,7 @@ StudyPal AI includes a comprehensive set of features designed to enhance student
 
 ---
 
-## 🛠️ Complete Tech Stack Specifications
+## Complete Tech Stack Specifications
 
 | Service / Technology | Component Classification | Purpose in Architecture |
 |---|---|---|
@@ -80,7 +80,7 @@ StudyPal AI includes a comprehensive set of features designed to enhance student
 
 ---
 
-## 🔌 API & Lambda Microservices Logic
+## API & Lambda Microservices Logic
 
 ### 1. POST /ask — AskQuestionFunction
 
@@ -113,7 +113,7 @@ StudyPal AI includes a comprehensive set of features designed to enhance student
 
 ---
 
-## 🚀 Deployment Guide
+## Deployment Guide
 
 ### Step 1: System Requirements
 
@@ -124,7 +124,7 @@ The deployment host must have the following tools installed and configured:
 - **Python 3.12**
 - **Groq API Key** (generated at [console.groq.com/keys](https://console.groq.com/keys))
 
-> ⚠️ **Security note:** Never commit your Groq API key to version control. The `GroqApiKey` parameter uses `NoEcho: true` in CloudFormation, ensuring it is redacted from all logs and stack outputs.
+> **Security note:** Never commit your Groq API key to version control. The `GroqApiKey` parameter uses `NoEcho: true` in CloudFormation, ensuring it is redacted from all logs and stack outputs.
 
 ### Step 2: Repository Setup
 
@@ -186,7 +186,7 @@ Synchronize the frontend asset to the deployed S3 bucket:
 aws s3 cp frontend/index.html s3://<FRONTEND_S3_BUCKET_NAME>/
 ```
 
-Access the web application using the generated `CloudFrontURL`. 🎉
+Access the web application using the generated `CloudFrontURL`. 
 
 ### Future Updates
 
@@ -200,7 +200,7 @@ SAM will read saved configuration from `samconfig.toml` automatically.
 
 ---
 
-## 🔒 Security Architecture
+## Security Architecture
 
 - **Bring Your Own Key (BYOK) Pattern:** API keys are injected per deployment stack, preventing shared credentials across environments or version control repositories.
 - **CloudFormation Parameter Masking:** The `GroqApiKey` parameter uses `NoEcho: true`, ensuring secret values are redacted from CloudFormation logs and output descriptions.
@@ -209,7 +209,7 @@ SAM will read saved configuration from `samconfig.toml` automatically.
 
 ---
 
-## 🔍 Operational Management
+## Operational Management
 
 ### Live Function Monitoring
 
