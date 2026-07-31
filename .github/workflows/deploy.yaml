@@ -2,7 +2,7 @@ name: Deploy StudyPal AI
 
 on:
   push:
-    branches: [develop, main]
+    branches: [feature/david]
 
 permissions:
   id-token: write
