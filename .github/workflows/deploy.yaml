@@ -26,7 +26,8 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          # FIXED: Swapped from secrets to the exact variable name in your settings
+          role-to-assume: ${{ vars.TOMCAT_STUDYPAL_S3_CLOUDFRONT_ROLE }}
           aws-region: us-east-1
 
       - name: Copy samconfig
