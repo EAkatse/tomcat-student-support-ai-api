@@ -58,9 +58,15 @@ jobs:
         working-directory: .
         run: |
           DISTRIBUTION_ID=$(aws cloudformation describe-stacks \
-            --stack-name student-support-ai-system \
+            --stack-name studypal-frontend-401042945835-us-east-1 \
             --query "Stacks[0].Outputs[?OutputKey=='CloudFrontDistributionId'].OutputValue" \
             --output text)
+          
+          if [ -z "$DISTRIBUTION_ID" ] || [ "$DISTRIBUTION_ID" == "None" ]; then
+            echo "Error: CloudFrontDistributionId not found in CloudFormation outputs."
+            exit 1
+          fi
+
           aws cloudfront create-invalidation \
             --distribution-id $DISTRIBUTION_ID \
             --paths "/index.html"
