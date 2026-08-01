@@ -7,9 +7,14 @@ The University of Ghana was struggling with student support operations, where ov
 To address this, we architected CampusAI as a fully serverless AI platform on AWS, using Lambda, API Gateway, and DynamoDB, with the Groq LLM engine delivering high-speed inference at over 300 tokens per second. We integrated Amazon Cognito with MFA for zero-trust authentication, enforced least-privilege IAM policies, and set up CloudWatch for auto-scaling and real-time monitoring. 
 As a result, average response time dropped from 4.6 hours to just 890 milliseconds—a 99.99% improvement—while first-contact resolution rose to 92.7% and repeat inquiries fell to 7.3%. The system handled 2,800 concurrent users during peak registration with zero downtime, reduced monthly infrastructure costs from $920 to $10, maintained a perfect security record with zero incidents over six months, and achieved a 4.7 out of 5.0 student satisfaction rating from 1,200 surveyed users.
 
+Live URL: https://www.campusai.site
+
 ---
 
-## End-to-End System Architecture
+## Architecture
+![Serverless Student AI Support Architecture Diagram](Serverless_Student_AI_Support_Architecture_Diagram.jpg)
+
+## End-to-End System Architecture Overview
 
 The CampusAI infrastructure operates on a fully decoupled, serverless model:
 
@@ -225,4 +230,4 @@ sam logs -n AskQuestionFunction --stack-name student-support-ai-system --tail
 ```bash
 sam build && sam deploy
 ```
-> **EduAssist AI** is a production-ready serverless application demonstrating modern cloud architecture, AI integration, DevOps practices, and scalable software engineering principles.
+> **CampusAI** is a production-ready serverless application demonstrating modern cloud architecture, AI integration, DevOps practices, and scalable software engineering principles.
