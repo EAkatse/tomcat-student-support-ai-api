@@ -238,3 +238,7 @@ Outputs:
   FrontendS3Bucket:
     Description: "S3 Bucket Name for uploading index.html"
     Value: !Ref FrontendBucket
+
+  CloudFrontDistributionId:
+    Description: "CloudFront Distribution ID for invalidation"
+    Value: !Ref CloudFrontDistributionion
