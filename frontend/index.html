@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StudyPal - Academic Intelligence Hub</title>
+    <title>CampusAI - Academic Intelligence Hub</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -176,7 +176,7 @@
             <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex-none z-30">
                 <div class="w-full px-2 sm:px-3 py-2.5 flex justify-between items-center">
 
-                    <!-- Left Branding Block (StudyPal) & Active Chat Title -->
+                    <!-- Left Branding Block (CampusAI) & Active Chat Title -->
                     <div class="flex items-center space-x-2.5 truncate">
                         <!-- Mobile Sidebar Toggle -->
                         <button onclick="openMobileSidebar()" class="md:hidden p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition flex-none">
@@ -190,7 +190,7 @@
                             </div>
                             <div class="flex flex-col">
                                 <span class="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white leading-none">
-                                    StudyPal
+                                    CampusAI
                                 </span>
                                 <span class="text-[10px] sm:text-[11px] font-medium text-blue-600 dark:text-blue-400 mt-0.5 leading-none">
                                     University of Ghana AI Assistant
@@ -325,7 +325,7 @@
                 <div class="inline-flex items-center justify-center w-14 h-14 bg-blue-600 text-white rounded-2xl shadow-lg mb-3">
                     <i class="fa-solid fa-graduation-cap text-2xl"></i>
                 </div>
-                <h1 class="text-2xl font-bold text-slate-900 dark:text-white">StudyPal</h1>
+                <h1 class="text-2xl font-bold text-slate-900 dark:text-white">CampusAI</h1>
                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">University of Ghana AI Assistant</p>
             </div>
 
@@ -776,7 +776,7 @@
                     <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-none p-3.5 sm:p-4 w-full text-xs sm:text-sm text-slate-700 dark:text-slate-200 shadow-sm space-y-2">
                         <div class="flex items-center space-x-2 text-blue-600 dark:text-blue-400 font-semibold text-xs">
                             <i class="fa-solid fa-sparkles"></i>
-                            <span>StudyPal (${category})</span>
+                            <span>CampusAI (${category})</span>
                         </div>
                         <div class="markdown-body leading-relaxed break-words">${parsedMarkdown}</div>
                     </div>
@@ -1377,7 +1377,7 @@
                         <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-none p-3.5 sm:p-4 w-full text-xs sm:text-sm text-slate-700 dark:text-slate-200 shadow-sm space-y-2">
                             <div class="flex items-center space-x-2 text-blue-600 dark:text-blue-400 font-semibold text-xs">
                                 <i class="fa-solid fa-sparkles"></i>
-                                <span>StudyPal (${category})</span>
+                                <span>CampusAI (${category})</span>
                             </div>
                             <div class="markdown-body leading-relaxed break-words">${parsedMarkdown}</div>
                         </div>
@@ -1500,7 +1500,7 @@
                             <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-none p-3.5 sm:p-4 w-full text-xs sm:text-sm text-slate-700 dark:text-slate-200 shadow-sm space-y-2">
                                 <div class="flex items-center space-x-2 text-blue-600 dark:text-blue-400 font-semibold text-xs">
                                     <i class="fa-solid fa-sparkles"></i>
-                                    <span>StudyPal (${category})</span>
+                                    <span>CampusAI (${category})</span>
                                 </div>
                                 <div class="markdown-body leading-relaxed break-words">${parsedMarkdown}</div>
                             </div>
@@ -1667,7 +1667,7 @@
                     return;
                 }
 
-                let textContent = `# Frequently Asked Questions\nExported from StudyPal - ${new Date().toLocaleDateString()}\n\n---\n\n`;
+                let textContent = `# Frequently Asked Questions\nExported from CampusAI - ${new Date().toLocaleDateString()}\n\n---\n\n`;
 
                 loadedFaqs.forEach((f, idx) => {
                     textContent += `## Q${idx + 1} [${f.category || 'General'}]: ${f.question || ''}\n`;
@@ -1686,7 +1686,7 @@
                 return; 
             }
 
-            let textContent = `# ${session.title}\nExported from StudyPal - ${new Date().toLocaleDateString()}\n\n---\n\n`;
+            let textContent = `# ${session.title}\nExported from CampusAI - ${new Date().toLocaleDateString()}\n\n---\n\n`;
 
             session.messages.forEach((m, idx) => {
                 textContent += `## Prompt ${idx + 1} (${m.category || 'General'})\n`;
@@ -1694,7 +1694,7 @@
                     textContent += `[Attached File: ${m.fileName}]\n`;
                 }
                 textContent += `${m.question}\n\n`;
-                textContent += `### StudyPal Response:\n${m.answer}\n\n---\n\n`;
+                textContent += `### CampusAI Response:\n${m.answer}\n\n---\n\n`;
             });
 
             const fileName = `${session.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_export.txt`;
