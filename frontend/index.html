@@ -2,7 +2,7 @@
 <html lang="en" class="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CampusAI - Academic Intelligence Hub</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,279 +15,597 @@
     <script src="https://cdn.jsdelivr.net/npm/amazon-cognito-identity-js@6.3.1/dist/amazon-cognito-identity.min.js"></script>
     <!-- Marked.js for Rendering Markdown in Responses -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Instrument+Sans:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --font-ui: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+            --font-display: "Instrument Sans", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+            --space-1: 0.25rem;
+            --space-2: 0.5rem;
+            --space-3: 0.75rem;
+            --space-4: 1rem;
+            --space-5: 1.25rem;
+            --space-6: 1.5rem;
+            --space-8: 2rem;
+            --space-10: 2.5rem;
+            --space-12: 3rem;
+            --radius-sm: 0.5rem;
+            --radius-md: 0.75rem;
+            --radius-lg: 1rem;
+            --radius-xl: 1.25rem;
+            --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+            --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+            --duration-fast: 150ms;
+            --duration: 240ms;
+            --duration-slow: 480ms;
+            --focus-ring: 0 0 0 0.1875rem rgba(37, 99, 235, 0.35);
+            --surface: #f4f6f9;
+            --surface-raised: #ffffff;
+            --surface-muted: #eef2f6;
+            --border: #dbe2ea;
+            --text: #0f172a;
+            --text-secondary: #334155;
+            --text-muted: #475569;
+            --accent: #1d4ed8;
+            --accent-hover: #1e40af;
+            --accent-soft: #eff6ff;
+            --auth-image: url("https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=2400&q=80");
+            --workspace-image: url("https://images.unsplash.com/photo-1481627834876-b7833e8f5570?auto=format&fit=crop&w=2000&q=70");
+        }
+
+        .dark {
+            --surface: #0b1220;
+            --surface-raised: #152033;
+            --surface-muted: #1a2740;
+            --border: #2a3a52;
+            --text: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #60a5fa;
+            --accent-soft: rgba(59, 130, 246, 0.14);
+            --focus-ring: 0 0 0 0.1875rem rgba(96, 165, 250, 0.4);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        html {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        body {
+            font-family: var(--font-ui);
+            letter-spacing: -0.011em;
+            background: var(--surface);
+            color: var(--text);
+        }
+
         .app-height {
             height: 100vh;
             height: 100dvh;
         }
 
+        /* Shell: strict horizontal flex alignment */
+        #appShell:not(.hidden) {
+            display: flex;
+            flex-direction: row;
+            align-items: stretch;
+            width: 100%;
+            height: 100%;
+            min-height: 0;
+            position: relative;
+            isolation: isolate;
+        }
+
+        /* Atmospheric workspace backdrop */
+        .workspace-stage {
+            position: relative;
+            isolation: isolate;
+            background:
+                linear-gradient(180deg, rgba(244, 246, 249, 0.92) 0%, rgba(244, 246, 249, 0.97) 55%, #f4f6f9 100%),
+                var(--workspace-image) center / cover no-repeat;
+        }
+        .dark .workspace-stage {
+            background:
+                linear-gradient(180deg, rgba(11, 18, 32, 0.94) 0%, rgba(11, 18, 32, 0.98) 60%, #0b1220 100%),
+                var(--workspace-image) center / cover no-repeat;
+        }
+
+        .workspace-stage::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse 70% 50% at 80% -10%, rgba(29, 78, 216, 0.08), transparent 55%),
+                radial-gradient(ellipse 50% 40% at 10% 100%, rgba(15, 23, 42, 0.04), transparent 50%);
+        }
+        .dark .workspace-stage::before {
+            background:
+                radial-gradient(ellipse 70% 50% at 80% -10%, rgba(59, 130, 246, 0.12), transparent 55%),
+                radial-gradient(ellipse 50% 40% at 10% 100%, rgba(0, 0, 0, 0.25), transparent 50%);
+        }
+
+        .workspace-stage > * { position: relative; z-index: 1; }
+
+        .chat-scroll,
+        .history-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(71, 85, 105, 0.45) transparent;
+        }
         .chat-scroll::-webkit-scrollbar,
-        .history-scroll::-webkit-scrollbar { width: 4px; }
+        .history-scroll::-webkit-scrollbar { width: 0.375rem; }
+        .chat-scroll::-webkit-scrollbar-track,
+        .history-scroll::-webkit-scrollbar-track { background: transparent; }
         .chat-scroll::-webkit-scrollbar-thumb,
-        .history-scroll::-webkit-scrollbar-thumb { background-color: rgba(156, 163, 175, 0.4); border-radius: 9999px; }
+        .history-scroll::-webkit-scrollbar-thumb {
+            background-color: rgba(71, 85, 105, 0.4);
+            border-radius: 9999px;
+        }
+        .chat-scroll::-webkit-scrollbar-thumb:hover,
+        .history-scroll::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(71, 85, 105, 0.65);
+        }
+
         #questionInput { overflow-y: hidden; }
-        
-        /* Rail button base styling */
+
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        :focus-visible {
+            outline: none;
+            box-shadow: var(--focus-ring);
+        }
+
+        button, a, [role="button"] {
+            transition:
+                background-color var(--duration) var(--ease-out),
+                color var(--duration) var(--ease-out),
+                border-color var(--duration) var(--ease-out),
+                box-shadow var(--duration) var(--ease-out),
+                transform var(--duration-fast) var(--ease-out),
+                opacity var(--duration-fast) var(--ease-out);
+        }
+
+        button:active:not(:disabled) {
+            transform: scale(0.97);
+        }
+
         .rail-btn {
             position: relative;
             display: flex;
             align-items: center;
+            justify-content: flex-start;
+            gap: 0.625rem;
             width: 100%;
+            min-height: 2.5rem;
             height: 2.5rem;
-            border-radius: 0.75rem;
-            transition: all 0.2s ease;
+            padding-inline: 0.75rem;
+            border-radius: var(--radius-md);
+            transition:
+                background-color var(--duration) var(--ease-out),
+                color var(--duration) var(--ease-out),
+                box-shadow var(--duration) var(--ease-out),
+                transform var(--duration-fast) var(--ease-out);
+        }
+
+        .rail-btn:hover {
+            transform: translateX(0.0625rem);
+        }
+
+        .rail-btn .rail-label {
+            margin-left: 0 !important;
         }
 
         .rail-tooltip { display: none; }
 
         @media (min-width: 768px) {
+            .sidebar-collapsed .rail-btn {
+                justify-content: center;
+                padding-inline: 0;
+                gap: 0;
+            }
+
             .sidebar-collapsed .rail-btn .rail-tooltip {
                 display: block;
                 position: absolute;
-                left: calc(100% + 12px);
+                left: calc(100% + 0.75rem);
                 top: 50%;
-                transform: translateY(-50%);
+                transform: translateY(-50%) translateX(-0.25rem);
                 white-space: nowrap;
                 opacity: 0;
                 pointer-events: none;
-                transition: opacity 0.15s ease;
+                transition:
+                    opacity var(--duration-fast) var(--ease-out),
+                    transform var(--duration-fast) var(--ease-out);
                 z-index: 50;
             }
-            .sidebar-collapsed .rail-btn:hover .rail-tooltip { opacity: 1; }
+            .sidebar-collapsed .rail-btn:hover .rail-tooltip,
+            .sidebar-collapsed .rail-btn:focus-visible .rail-tooltip {
+                opacity: 1;
+                transform: translateY(-50%) translateX(0);
+            }
         }
 
-        /* Sidebar state rules for desktop */
         @media (min-width: 768px) {
             .sidebar-collapsed .rail-label,
             .sidebar-collapsed .chat-history-section,
-            .sidebar-collapsed .profile-details { 
-                display: none !important; 
+            .sidebar-collapsed .profile-details {
+                display: none !important;
             }
         }
 
-        /* Rendered Markdown Formatted Output Styles */
+        .composer-shell {
+            transition:
+                border-color var(--duration) var(--ease-out),
+                box-shadow var(--duration) var(--ease-out),
+                transform var(--duration) var(--ease-out);
+        }
+        .composer-shell:focus-within {
+            border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+            box-shadow: var(--focus-ring), 0 0.75rem 1.75rem -1rem rgba(15, 23, 42, 0.2);
+            transform: translateY(-0.0625rem);
+        }
+
+        .cat-btn, .faq-filter-btn {
+            transition:
+                background-color var(--duration) var(--ease-out),
+                color var(--duration) var(--ease-out),
+                transform var(--duration-fast) var(--ease-out),
+                box-shadow var(--duration) var(--ease-out);
+        }
+        .cat-btn:hover, .faq-filter-btn:hover {
+            transform: translateY(-0.0625rem);
+        }
+
+        /* Auth gate — full-bleed campus atmosphere */
+        #authModal {
+            display: grid;
+            place-items: center;
+            overflow: hidden;
+        }
+        #authModal.hidden { display: none; }
+
+        .auth-backdrop {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+            background:
+                linear-gradient(115deg, rgba(15, 23, 42, 0.78) 0%, rgba(15, 23, 42, 0.55) 45%, rgba(29, 78, 216, 0.35) 100%),
+                var(--auth-image) center / cover no-repeat;
+            transform: scale(1.02);
+            animation: authKenBurns 28s var(--ease-out) infinite alternate;
+        }
+        .dark .auth-backdrop {
+            background:
+                linear-gradient(115deg, rgba(2, 6, 23, 0.88) 0%, rgba(15, 23, 42, 0.72) 50%, rgba(30, 58, 138, 0.45) 100%),
+                var(--auth-image) center / cover no-repeat;
+        }
+
+        .auth-backdrop::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 50% at 20% 80%, rgba(255, 255, 255, 0.08), transparent 60%),
+                linear-gradient(to top, rgba(15, 23, 42, 0.35), transparent 40%);
+            pointer-events: none;
+        }
+
+        @keyframes authKenBurns {
+            from { transform: scale(1.02) translate3d(0, 0, 0); }
+            to { transform: scale(1.08) translate3d(-1.5%, -1%, 0); }
+        }
+
+        .auth-panel {
+            position: relative;
+            z-index: 1;
+            width: min(100%, 26rem);
+            animation: fadeRise 0.55s var(--ease-out) both;
+        }
+
+        .auth-glass {
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(18px) saturate(1.2);
+            -webkit-backdrop-filter: blur(18px) saturate(1.2);
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            box-shadow:
+                0 1.5rem 3rem -1.25rem rgba(15, 23, 42, 0.45),
+                0 0.25rem 0.75rem -0.25rem rgba(15, 23, 42, 0.12);
+        }
+        .dark .auth-glass {
+            background: rgba(21, 32, 51, 0.9);
+            border-color: rgba(148, 163, 184, 0.18);
+            box-shadow:
+                0 1.5rem 3rem -1.25rem rgba(0, 0, 0, 0.65),
+                0 0.25rem 0.75rem -0.25rem rgba(0, 0, 0, 0.35);
+        }
+
+        .auth-brand {
+            animation: fadeRise 0.55s var(--ease-out) 0.08s both;
+        }
+
+        .auth-brand-mark {
+            animation: brandPop 0.6s var(--ease-spring) 0.12s both;
+        }
+
+        @keyframes brandPop {
+            from { opacity: 0; transform: scale(0.86) translateY(0.35rem); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        #emptyChatNotice {
+            animation: fadeRise 0.5s var(--ease-out) both;
+        }
+        @keyframes fadeRise {
+            from { opacity: 0; transform: translateY(0.65rem); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-field {
+            transition:
+                border-color var(--duration) var(--ease-out),
+                box-shadow var(--duration) var(--ease-out),
+                background-color var(--duration) var(--ease-out);
+        }
+        .auth-field:focus {
+            border-color: var(--accent);
+            box-shadow: var(--focus-ring);
+            background-color: #fff;
+        }
+        .dark .auth-field:focus {
+            background-color: #0f172a;
+        }
+
+        .font-display {
+            font-family: var(--font-display);
+            letter-spacing: -0.025em;
+        }
+
+        .faq-tile {
+            transition:
+                border-color var(--duration) var(--ease-out),
+                box-shadow var(--duration) var(--ease-out),
+                transform var(--duration) var(--ease-out),
+                background-color var(--duration) var(--ease-out);
+        }
+        .faq-tile:hover {
+            transform: translateY(-0.125rem);
+            box-shadow: 0 0.75rem 1.5rem -0.75rem rgba(15, 23, 42, 0.18);
+        }
+
         .markdown-body strong { font-weight: 700; }
-        .markdown-body p { margin-bottom: 0.5rem; }
+        .markdown-body p { margin-bottom: 0.5em; }
         .markdown-body p:last-child { margin-bottom: 0; }
-        .markdown-body ul { list-style-type: disc; margin-left: 1.25rem; margin-top: 0.25rem; margin-bottom: 0.5rem; }
-        .markdown-body ol { list-style-type: decimal; margin-left: 1.25rem; margin-top: 0.25rem; margin-bottom: 0.5rem; }
-        .markdown-body li { margin-bottom: 0.25rem; }
+        .markdown-body ul { list-style-type: disc; margin-inline-start: 1.25em; margin-block: 0.25em 0.5em; }
+        .markdown-body ol { list-style-type: decimal; margin-inline-start: 1.25em; margin-block: 0.25em 0.5em; }
+        .markdown-body li { margin-bottom: 0.25em; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            button:active:not(:disabled),
+            .rail-btn:hover,
+            .composer-shell:focus-within,
+            .faq-tile:hover,
+            .cat-btn:hover,
+            .faq-filter-btn:hover { transform: none; }
+            .auth-backdrop { animation: none; transform: none; }
+        }
     </style>
 </head>
-<body class="bg-slate-50 dark:bg-slate-900 app-height text-slate-800 dark:text-slate-100 font-sans flex overflow-hidden transition-colors duration-300">
+<body class="app-height text-slate-900 dark:text-slate-100 flex overflow-hidden transition-colors duration-300">
 
     <!-- ================= APP SHELL (everything behind the auth gate) ================= -->
-    <div id="appShell" class="hidden w-full h-full overflow-hidden">
+    <div id="appShell" class="hidden w-full h-full overflow-hidden min-h-0" role="application" aria-label="CampusAI workspace">
 
         <!-- Mobile Backdrop Overlay -->
         <div id="sidebarBackdrop" onclick="closeMobileSidebar()" 
-             class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden md:hidden transition-opacity"></div>
+             class="fixed inset-0 bg-slate-900/55 backdrop-blur-[2px] z-40 hidden md:hidden transition-opacity duration-300"
+             aria-hidden="true"></div>
 
         <!-- ================= LEFT SIDEBAR (COLLAPSIBLE / CHAT THREADS) ================= -->
-        <aside id="sidebar" 
-               class="fixed md:relative inset-y-0 left-0 z-50 md:z-20 -translate-x-full md:translate-x-0 w-64 md:w-64 h-full bg-white dark:bg-slate-800 border-r border-slate-200 dark:border-slate-700 flex flex-col items-center py-3 px-3 transition-all duration-300 shadow-xl md:shadow-none">
+        <aside id="sidebar" aria-label="Chat navigation"
+               class="fixed md:relative inset-y-0 left-0 z-50 md:z-20 -translate-x-full md:translate-x-0 w-[16.5rem] md:w-64 h-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-md border-r border-slate-200 dark:border-slate-700 flex flex-col items-stretch py-[1rem] px-[0.875rem] transition-[width,transform] duration-300 ease-out shadow-2xl md:shadow-none">
             
             <!-- Sidebar Controls Header -->
-            <div class="w-full flex flex-col space-y-2 mb-3 flex-none">
-                <!-- Toggle Button (Top Right of Sidebar) -->
+            <div class="w-full flex flex-col gap-[0.625rem] mb-[1rem] shrink-0">
                 <div class="flex items-center justify-end w-full">
-                    <button onclick="toggleSidebar()" title="Toggle sidebar"
-                        class="w-9 h-9 rounded-xl flex items-center justify-center border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition flex-none">
-                        <i id="sidebarToggleIcon" class="fa-solid fa-angles-left text-xs"></i>
+                    <button type="button" onclick="toggleSidebar()" title="Toggle sidebar" aria-label="Toggle sidebar"
+                        class="w-[2.25rem] h-[2.25rem] rounded-[0.75rem] flex items-center justify-center border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 hover:border-slate-300 dark:hover:border-slate-500 shrink-0">
+                        <i id="sidebarToggleIcon" class="fa-solid fa-angles-left text-xs" aria-hidden="true"></i>
                     </button>
                 </div>
 
-                <!-- New Chat Button (Positioned Below Toggle Button) -->
-                <button onclick="createNewChat()" title="New Chat"
-                    class="rail-btn bg-blue-600 hover:bg-blue-700 text-white font-medium shadow-md shadow-blue-500/20 px-3 flex items-center justify-start w-full">
-                    <i class="fa-solid fa-plus text-sm flex-none w-5 text-center"></i>
-                    <span class="rail-label text-xs ml-2 truncate">New Chat</span>
-                    <span class="rail-tooltip bg-slate-900 text-white text-[11px] px-2.5 py-1 rounded-md shadow-lg">New Chat</span>
+                <button type="button" onclick="createNewChat()" title="New Chat"
+                    class="rail-btn bg-blue-700 hover:bg-blue-800 text-white font-medium shadow-md shadow-blue-700/20">
+                    <i class="fa-solid fa-plus text-sm shrink-0 w-5 text-center" aria-hidden="true"></i>
+                    <span class="rail-label text-xs truncate">New Chat</span>
+                    <span class="rail-tooltip bg-slate-900 text-white text-[0.6875rem] px-[0.625rem] py-[0.25rem] rounded-md shadow-lg">New Chat</span>
                 </button>
             </div>
 
             <!-- Navigation Workspace Tabs -->
-            <div class="flex flex-col items-center space-y-1 w-full border-b border-slate-100 dark:border-slate-700/60 pb-3 flex-none">
-                <button onclick="switchTab('query')" id="tab-query" title="Chat Workspace"
-                    class="rail-btn bg-slate-100 dark:bg-slate-700/70 text-blue-600 dark:text-blue-400 font-semibold px-3">
-                    <i class="fa-solid fa-message text-sm flex-none w-5 text-center"></i>
-                    <span class="rail-label text-xs ml-2.5 truncate">Chat Workspace</span>
-                    <span class="rail-tooltip bg-slate-900 text-white text-[11px] px-2.5 py-1 rounded-md shadow-lg">Chat Workspace</span>
+            <nav class="flex flex-col items-stretch gap-[0.25rem] w-full border-b border-slate-200/80 dark:border-slate-700/70 pb-[0.875rem] shrink-0" aria-label="Workspace">
+                <button type="button" onclick="switchTab('query')" id="tab-query" title="Chat Workspace" aria-current="page"
+                    class="rail-btn bg-slate-100 dark:bg-slate-700/70 text-blue-700 dark:text-blue-400 font-semibold">
+                    <i class="fa-solid fa-message text-sm shrink-0 w-5 text-center" aria-hidden="true"></i>
+                    <span class="rail-label text-xs truncate">Chat Workspace</span>
+                    <span class="rail-tooltip bg-slate-900 text-white text-[0.6875rem] px-[0.625rem] py-[0.25rem] rounded-md shadow-lg">Chat Workspace</span>
                 </button>
-            </div>
+            </nav>
 
             <!-- Chat History List (Pinned & Recents) -->
-            <div class="chat-history-section flex-grow w-full overflow-y-auto history-scroll my-2 space-y-4 px-0.5 min-h-0">
-                <!-- Pinned Container -->
-                <div id="pinnedChatsGroup" class="hidden space-y-1">
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-2 py-1">Pinned</p>
-                    <div id="pinnedChatsList" class="space-y-0.5"></div>
+            <nav class="chat-history-section flex-1 w-full overflow-y-auto history-scroll my-[1rem] flex flex-col gap-[1.25rem] px-[0.125rem] min-h-0" aria-label="Conversation history">
+                <div id="pinnedChatsGroup" class="hidden flex flex-col gap-[0.375rem]">
+                    <p class="text-[0.6875rem] font-bold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400 px-[0.5rem] py-[0.25rem]">Pinned</p>
+                    <div id="pinnedChatsList" class="flex flex-col gap-[0.25rem]" role="list"></div>
                 </div>
 
-                <!-- Recents Container -->
-                <div id="recentChatsGroup" class="space-y-1">
-                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-2 py-1">Recents</p>
-                    <div id="recentChatsList" class="space-y-0.5"></div>
+                <div id="recentChatsGroup" class="flex flex-col gap-[0.375rem]">
+                    <p class="text-[0.6875rem] font-bold uppercase tracking-[0.08em] text-slate-500 dark:text-slate-400 px-[0.5rem] py-[0.25rem]">Recents</p>
+                    <div id="recentChatsList" class="flex flex-col gap-[0.25rem]" role="list"></div>
                 </div>
-            </div>
+            </nav>
 
-            <!-- Bottom Controls & User Profile Badge (PINNED TO BOTTOM VIA mt-auto) -->
-            <div class="flex flex-col items-center space-y-1.5 w-full pt-3 mt-auto border-t border-slate-100 dark:border-slate-700/60 flex-none">
-                <!-- FAQs Toggle -->
-                <button onclick="switchTab('faq')" id="tab-faq" title="FAQs"
-                    class="rail-btn text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white px-3">
-                    <i class="fa-solid fa-circle-question text-sm flex-none w-5 text-center"></i>
-                    <span class="rail-label text-xs ml-2.5 truncate">FAQs</span>
-                    <span class="rail-tooltip bg-slate-900 text-white text-[11px] px-2.5 py-1 rounded-md shadow-lg">FAQs</span>
+            <!-- Bottom Controls & User Profile Badge -->
+            <div class="flex flex-col items-stretch gap-[0.375rem] w-full pt-[0.875rem] mt-auto border-t border-slate-200/80 dark:border-slate-700/70 shrink-0">
+                <button type="button" onclick="switchTab('faq')" id="tab-faq" title="FAQs"
+                    class="rail-btn text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white">
+                    <i class="fa-solid fa-circle-question text-sm shrink-0 w-5 text-center" aria-hidden="true"></i>
+                    <span class="rail-label text-xs truncate">FAQs</span>
+                    <span class="rail-tooltip bg-slate-900 text-white text-[0.6875rem] px-[0.625rem] py-[0.25rem] rounded-md shadow-lg">FAQs</span>
                 </button>
 
-                <!-- Theme Toggle -->
-                <button onclick="toggleTheme()" title="Toggle theme"
-                    class="rail-btn text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition px-3">
-                    <i id="themeIcon" class="fa-solid fa-moon text-sm flex-none w-5 text-center"></i>
-                    <span class="rail-label text-xs ml-2.5 truncate">Theme</span>
-                    <span class="rail-tooltip bg-slate-900 text-white text-[11px] px-2.5 py-1 rounded-md shadow-lg">Theme</span>
+                <button type="button" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme"
+                    class="rail-btn text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
+                    <i id="themeIcon" class="fa-solid fa-moon text-sm shrink-0 w-5 text-center" aria-hidden="true"></i>
+                    <span class="rail-label text-xs truncate">Theme</span>
+                    <span class="rail-tooltip bg-slate-900 text-white text-[0.6875rem] px-[0.625rem] py-[0.25rem] rounded-md shadow-lg">Theme</span>
                 </button>
 
-                <!-- User Profile Button / Card -->
-                <button onclick="handleProfileClick()" id="userProfileBtn" title="User Profile"
-                    class="rail-btn p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700/80 transition rounded-xl">
-                    <div class="relative flex-none">
-                        <div id="userAvatar" class="w-7 h-7 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                <button type="button" onclick="handleProfileClick()" id="userProfileBtn" title="User Profile"
+                    class="rail-btn !h-auto min-h-[2.5rem] py-[0.5rem] hover:bg-slate-100 dark:hover:bg-slate-700/80 rounded-[0.75rem]">
+                    <div class="relative shrink-0">
+                        <div id="userAvatar" class="w-[1.75rem] h-[1.75rem] rounded-full bg-gradient-to-tr from-blue-700 to-blue-500 text-white flex items-center justify-center font-bold text-xs shadow-sm" aria-hidden="true">
                             S
                         </div>
-                        <span id="userStatusDot" class="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 border border-white dark:border-slate-800 rounded-full"></span>
+                        <span id="userStatusDot" class="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 border border-white dark:border-slate-800 rounded-full" aria-hidden="true"></span>
                     </div>
 
-                    <div class="profile-details ml-2.5 text-left truncate flex-grow min-w-0 pr-1">
-                        <p id="sidebarUserName" class="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate">Student</p>
-                        <p id="sidebarUserRole" class="text-[10px] text-slate-400 dark:text-slate-400 truncate">Active Student</p>
+                    <div class="profile-details text-left truncate flex-1 min-w-0 pr-[0.25rem]">
+                        <p id="sidebarUserName" class="text-xs font-semibold text-slate-800 dark:text-slate-100 truncate leading-tight">Student</p>
+                        <p id="sidebarUserRole" class="text-[0.6875rem] text-slate-500 dark:text-slate-400 truncate leading-tight mt-[0.125rem]">Active Student</p>
                     </div>
 
-                    <span class="rail-tooltip bg-slate-900 text-white text-[11px] px-2.5 py-1 rounded-md shadow-lg" id="profileTooltip">Student Profile</span>
+                    <span class="rail-tooltip bg-slate-900 text-white text-[0.6875rem] px-[0.625rem] py-[0.25rem] rounded-md shadow-lg" id="profileTooltip">Student Profile</span>
                 </button>
             </div>
         </aside>
 
         <!-- Main Content Area -->
-        <div class="flex-grow flex flex-col h-full overflow-hidden w-full min-w-0">
+        <div class="workspace-stage flex-1 flex flex-col h-full overflow-hidden w-full min-w-0 min-h-0">
 
             <!-- ================= PERMANENT TOP HORIZONTAL HEADER BAR ================= -->
-            <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex-none z-30">
-                <div class="w-full px-2 sm:px-3 py-2.5 flex justify-between items-center">
+            <header class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-slate-200/90 dark:border-slate-700/90 shrink-0 z-30">
+                <div class="w-full px-[1rem] sm:px-[1.25rem] py-[0.875rem] grid grid-cols-[1fr_auto] items-center gap-[1rem]">
 
-                    <!-- Left Branding Block (CampusAI) & Active Chat Title -->
-                    <div class="flex items-center space-x-2.5 truncate">
-                        <!-- Mobile Sidebar Toggle -->
-                        <button onclick="openMobileSidebar()" class="md:hidden p-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-xl transition flex-none">
-                            <i class="fa-solid fa-bars text-lg"></i>
+                    <div class="flex items-center gap-[0.875rem] min-w-0">
+                        <button type="button" onclick="openMobileSidebar()" aria-label="Open sidebar"
+                            class="md:hidden p-[0.5rem] text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-[0.75rem] shrink-0">
+                            <i class="fa-solid fa-bars text-lg" aria-hidden="true"></i>
                         </button>
 
-                        <!-- Always Visible Brand Logo & Title with Subtitle -->
-                        <div class="flex items-center space-x-2 flex-none">
-                            <div class="bg-blue-600 text-white p-2 rounded-xl shadow-sm flex items-center justify-center">
+                        <div class="flex items-center gap-[0.75rem] shrink-0">
+                            <div class="bg-blue-700 text-white w-[2.5rem] h-[2.5rem] rounded-[0.875rem] shadow-sm shadow-blue-700/25 flex items-center justify-center" aria-hidden="true">
                                 <i class="fa-solid fa-graduation-cap text-base"></i>
                             </div>
-                            <div class="flex flex-col">
-                                <span class="text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white leading-none">
+                            <div class="flex flex-col gap-[0.25rem]">
+                                <h1 class="font-display text-base sm:text-lg font-bold tracking-tight text-slate-900 dark:text-white leading-none">
                                     CampusAI
-                                </span>
-                                <span class="text-[10px] sm:text-[11px] font-medium text-blue-600 dark:text-blue-400 mt-0.5 leading-none">
+                                </h1>
+                                <p class="text-[0.6875rem] sm:text-xs font-medium text-blue-700 dark:text-blue-400 leading-none">
                                     University of Ghana AI Assistant
-                                </span>
+                                </p>
                             </div>
                         </div>
 
-                        <!-- Divider & Active Chat Subtitle -->
-                        <div class="hidden sm:flex items-center space-x-2.5 truncate pl-1 border-l border-slate-200 dark:border-slate-700">
-                            <span id="currentChatTitleHeader" class="text-xs sm:text-sm font-semibold text-slate-500 dark:text-slate-400 truncate max-w-[200px] lg:max-w-xs">
+                        <div class="hidden sm:flex items-center gap-[0.75rem] min-w-0 pl-[0.875rem] border-l border-slate-200 dark:border-slate-700">
+                            <p id="currentChatTitleHeader" class="text-sm font-semibold text-slate-600 dark:text-slate-300 truncate max-w-[12.5rem] lg:max-w-xs">
                                 New Conversation
-                            </span>
+                            </p>
                         </div>
                     </div>
 
-                    <!-- Right Header Actions (Export & Sign Out) -->
-                    <div class="flex items-center space-x-2 flex-none ml-2">
-                        <button onclick="exportChatText()" title="Export content as Text"
-                            class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 text-xs px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl font-medium transition flex items-center space-x-1.5">
-                            <i class="fa-solid fa-file-arrow-down text-blue-600 dark:text-blue-400"></i>
+                    <div class="flex items-center gap-[0.625rem] shrink-0 justify-self-end">
+                        <button type="button" onclick="exportChatText()" title="Export content as Text"
+                            class="bg-slate-100/90 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-100 text-xs px-[0.75rem] py-[0.5625rem] sm:px-[1rem] rounded-[0.75rem] font-medium flex items-center gap-[0.5rem] border border-slate-200/80 dark:border-slate-600">
+                            <i class="fa-solid fa-file-arrow-down text-blue-700 dark:text-blue-400" aria-hidden="true"></i>
                             <span class="hidden sm:inline">Export Chat</span>
                         </button>
-                        <div id="authNavButtons" class="flex items-center space-x-2"></div>
+                        <div id="authNavButtons" class="flex items-center gap-[0.5rem]"></div>
                     </div>
                 </div>
             </header>
 
             <!-- Dynamic Body Workspace -->
-            <main class="flex-grow max-w-5xl w-full mx-auto px-2.5 sm:px-4 overflow-hidden flex flex-col relative">
+            <main class="flex-1 max-w-5xl w-full mx-auto px-[1rem] sm:px-[1.5rem] overflow-hidden flex flex-col relative min-h-0" id="mainWorkspace">
 
                 <!-- 1. CHAT QUERY TAB -->
-                <section id="content-query" class="flex-grow flex flex-col h-full overflow-hidden">
+                <section id="content-query" class="flex-1 flex flex-col h-full overflow-hidden min-h-0" aria-labelledby="welcomeHeading">
 
-                    <!-- Scrollable Chat Feed -->
-                    <div id="chatFeed" class="flex-grow overflow-y-auto chat-scroll py-4 sm:py-6 space-y-4 sm:space-y-6 max-w-4xl mx-auto w-full px-1 flex flex-col justify-start">
-                        <div id="emptyChatNotice" class="text-center my-auto py-6 space-y-2.5">
-                            <div class="inline-flex items-center justify-center p-3.5 bg-blue-50 dark:bg-blue-950/50 rounded-2xl mb-1 shadow-inner">
-                                <i class="fa-solid fa-sparkles text-2xl sm:text-3xl text-blue-600 dark:text-blue-400"></i>
+                    <div id="chatFeed" class="flex-1 overflow-y-auto chat-scroll py-[1.75rem] sm:py-[2.25rem] flex flex-col gap-[1.5rem] sm:gap-[1.75rem] max-w-4xl mx-auto w-full px-[0.25rem] justify-start min-h-0" role="log" aria-live="polite" aria-relevant="additions">
+                        <div id="emptyChatNotice" class="text-center my-auto py-[2rem] sm:py-[2.5rem] flex flex-col items-center gap-[1rem]">
+                            <div class="inline-flex items-center justify-center w-[3.75rem] h-[3.75rem] bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 rounded-[1.125rem] shadow-sm backdrop-blur-sm" aria-hidden="true">
+                                <i class="fa-solid fa-sparkles text-2xl sm:text-3xl text-blue-700 dark:text-blue-400"></i>
                             </div>
-                            <h2 class="text-xl sm:text-3xl font-bold tracking-tight text-slate-800 dark:text-slate-100 px-2">
-                                Hello, <span id="welcomeUserName" class="text-blue-600 dark:text-blue-400">Student</span> 👋
+                            <h2 id="welcomeHeading" class="font-display text-2xl sm:text-[2rem] font-bold tracking-tight text-slate-900 dark:text-slate-50 px-[0.5rem] leading-tight">
+                                Hello, <span id="welcomeUserName" class="text-blue-700 dark:text-blue-400">Student</span>
                             </h2>
-                            <p class="text-xs sm:text-base text-slate-500 dark:text-slate-400 font-normal max-w-md mx-auto leading-relaxed px-4">
+                            <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400 font-normal max-w-md mx-auto leading-relaxed px-[1rem]">
                                 Ask a question or attach a document below to get started.
                             </p>
                         </div>
                     </div>
 
-                    <!-- Input Workspace Bottom Panel -->
-                    <div class="flex-none py-2 sm:py-3 bg-slate-50 dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-800">
-                        <div class="max-w-3xl mx-auto space-y-2">
+                    <div class="shrink-0 py-[1rem] sm:py-[1.25rem] bg-gradient-to-t from-[#f4f6f9] via-[#f4f6f9]/90 to-transparent dark:from-[#0b1220] dark:via-[#0b1220]/90 border-t border-slate-200/60 dark:border-slate-800/80">
+                        <div class="max-w-3xl mx-auto flex flex-col gap-[0.75rem]">
 
-                            <!-- Tag Selection Bar -->
-                            <div class="flex items-center space-x-1.5 overflow-x-auto px-1 no-scrollbar" id="categoryOptions">
-                                <span class="text-[10px] sm:text-[11px] font-semibold text-slate-400 uppercase tracking-wider mr-1 flex-none">Tag:</span>
-                                <button type="button" onclick="selectCategory('General')" class="cat-btn flex-none bg-blue-600 text-white px-2.5 py-0.5 rounded-full text-xs font-medium transition">General</button>
-                                <button type="button" onclick="selectCategory('Academics')" class="cat-btn flex-none bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition">Academics</button>
-                                <button type="button" onclick="selectCategory('Tuition & Fees')" class="cat-btn flex-none bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition">Tuition & Fees</button>
-                                <button type="button" onclick="selectCategory('Exams')" class="cat-btn flex-none bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition">Exams</button>
+                            <div class="flex items-center gap-[0.5rem] overflow-x-auto px-[0.25rem] no-scrollbar" id="categoryOptions" role="group" aria-label="Question category">
+                                <span class="text-[0.6875rem] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-[0.06em] mr-[0.125rem] shrink-0">Tag</span>
+                                <button type="button" onclick="selectCategory('General')" class="cat-btn shrink-0 bg-blue-700 text-white px-[0.875rem] py-[0.375rem] rounded-[0.625rem] text-xs font-medium">General</button>
+                                <button type="button" onclick="selectCategory('Academics')" class="cat-btn shrink-0 bg-white/90 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 px-[0.875rem] py-[0.375rem] rounded-[0.625rem] text-xs font-medium">Academics</button>
+                                <button type="button" onclick="selectCategory('Tuition & Fees')" class="cat-btn shrink-0 bg-white/90 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 px-[0.875rem] py-[0.375rem] rounded-[0.625rem] text-xs font-medium">Tuition & Fees</button>
+                                <button type="button" onclick="selectCategory('Exams')" class="cat-btn shrink-0 bg-white/90 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 px-[0.875rem] py-[0.375rem] rounded-[0.625rem] text-xs font-medium">Exams</button>
                                 <input type="hidden" id="categoryInput" value="General">
                             </div>
 
-                            <!-- Form Input Box -->
-                            <form id="askForm">
-                                <!-- File Attachment Preview Pill -->
-                                <div id="filePreview" class="hidden mb-2 px-3.5 py-2 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-between text-xs border border-slate-200 dark:border-slate-700">
-                                    <div class="flex items-center space-x-2 truncate">
-                                        <i class="fa-solid fa-paperclip text-blue-500"></i>
+                            <form id="askForm" aria-label="Ask CampusAI">
+                                <div id="filePreview" class="hidden mb-[0.625rem] px-[1rem] py-[0.625rem] bg-white/90 dark:bg-slate-800 rounded-[1rem] flex items-center justify-between text-xs border border-slate-200 dark:border-slate-700">
+                                    <div class="flex items-center gap-[0.5rem] truncate min-w-0">
+                                        <i class="fa-solid fa-paperclip text-blue-700 dark:text-blue-400 shrink-0" aria-hidden="true"></i>
                                         <span id="fileName" class="truncate font-medium text-slate-700 dark:text-slate-200"></span>
-                                        <span id="fileSize" class="text-slate-400 text-[10px]"></span>
+                                        <span id="fileSize" class="text-slate-500 text-[0.6875rem] shrink-0"></span>
                                     </div>
-                                    <button type="button" onclick="removeAttachment()" class="text-slate-400 hover:text-rose-500 transition ml-2 p-1">
-                                        <i class="fa-solid fa-xmark"></i>
+                                    <button type="button" onclick="removeAttachment()" aria-label="Remove attachment" class="text-slate-500 hover:text-rose-600 dark:hover:text-rose-400 ml-[0.5rem] p-[0.25rem] shrink-0">
+                                        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
                                     </button>
                                 </div>
 
-                                <div class="flex items-end bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl shadow-md border border-slate-200 dark:border-slate-700 pl-3.5 sm:pl-4 pr-1.5 sm:pr-2 py-1.5 sm:py-2">
+                                <div class="composer-shell flex items-end bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-[1.25rem] shadow-[0_0.5rem_1.5rem_-0.75rem_rgba(15,23,42,0.14)] border border-slate-200 dark:border-slate-700 pl-[1rem] pr-[0.5rem] py-[0.5rem]">
                                     <input type="file" id="fileInput" class="hidden" accept=".pdf,.txt,.docx,.png,.jpg,.jpeg" onchange="handleFileSelect(event)">
                                     
-                                    <button type="button" onclick="document.getElementById('fileInput').click()" title="Attach file"
-                                        class="p-1.5 sm:p-2 rounded-full text-slate-400 hover:text-blue-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition flex-none mr-1">
-                                        <i class="fa-solid fa-paperclip text-xs sm:text-sm"></i>
+                                    <button type="button" onclick="document.getElementById('fileInput').click()" title="Attach file" aria-label="Attach file"
+                                        class="p-[0.5rem] rounded-[0.625rem] text-slate-500 hover:text-blue-700 hover:bg-slate-100 dark:hover:bg-slate-700 shrink-0 mr-[0.25rem]">
+                                        <i class="fa-solid fa-paperclip text-sm" aria-hidden="true"></i>
                                     </button>
 
                                     <textarea id="questionInput" rows="1"
-                                        class="flex-grow bg-transparent dark:text-white focus:outline-none text-xs sm:text-sm resize-none py-1.5 max-h-32 sm:max-h-40"
-                                        placeholder="Ask anything or attach a document..."></textarea>
+                                        class="flex-1 bg-transparent text-slate-900 dark:text-white placeholder:text-slate-400 focus:outline-none text-sm resize-none py-[0.625rem] max-h-32 sm:max-h-40 leading-relaxed"
+                                        placeholder="Ask anything or attach a document..."
+                                        aria-label="Ask a question"></textarea>
 
-                                    <div class="flex items-center space-x-1 flex-none pl-1 sm:pl-2">
-                                        <span class="hidden md:inline text-[10px] font-medium text-slate-400 px-1 select-none">Llama 3.3 70B</span>
-                                        <button type="button" onclick="startVoiceInput()" id="micBtn" title="Dictate question"
-                                            class="p-1.5 sm:p-2 rounded-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-700 transition">
-                                            <i class="fa-solid fa-microphone text-xs sm:text-sm"></i>
+                                    <div class="flex items-center gap-[0.25rem] shrink-0 pl-[0.375rem]">
+                                        <span class="hidden md:inline text-[0.6875rem] font-medium text-slate-500 px-[0.375rem] select-none">Llama 3.3 70B</span>
+                                        <button type="button" onclick="startVoiceInput()" id="micBtn" title="Dictate question" aria-label="Dictate question"
+                                            class="p-[0.5rem] rounded-[0.625rem] text-slate-500 hover:text-blue-700 hover:bg-blue-50 dark:hover:bg-slate-700">
+                                            <i class="fa-solid fa-microphone text-sm" aria-hidden="true"></i>
                                         </button>
-                                        <button type="submit" id="submitBtn" title="Ask AI"
-                                            class="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white w-8 h-8 sm:w-9 sm:h-9 rounded-full text-xs font-semibold shadow-sm flex items-center justify-center transition flex-none">
-                                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                                        <button type="submit" id="submitBtn" title="Ask AI" aria-label="Send question"
+                                            class="bg-blue-700 hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed text-white w-[2.375rem] h-[2.375rem] rounded-[0.75rem] text-xs font-semibold shadow-sm shadow-blue-700/25 flex items-center justify-center shrink-0">
+                                            <i class="fa-solid fa-paper-plane text-xs" aria-hidden="true"></i>
                                         </button>
                                     </div>
                                 </div>
@@ -296,21 +614,20 @@
                     </div>
                 </section>
 
-                <!-- 2. FAQS TAB -->
-                <section id="content-faq" class="hidden flex-grow overflow-y-auto py-4 sm:py-6 space-y-4 sm:space-y-6">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 pb-3 border-b border-slate-200 dark:border-slate-700">
-                        <div>
-                            <h2 class="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">Frequently Asked Questions</h2>
-                            <p class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">Click any card to load it into the prompt.</p>
+                <section id="content-faq" class="hidden flex-1 overflow-y-auto py-[1.75rem] sm:py-[2.25rem] flex flex-col gap-[1.5rem] min-h-0" aria-labelledby="faqHeading">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-[1rem] pb-[1rem] border-b border-slate-200 dark:border-slate-700">
+                        <div class="flex flex-col gap-[0.375rem]">
+                            <h2 id="faqHeading" class="font-display text-xl sm:text-2xl font-bold text-slate-900 dark:text-white">Frequently Asked Questions</h2>
+                            <p class="text-sm text-slate-600 dark:text-slate-400">Click any card to load it into the prompt.</p>
                         </div>
-                        <div id="faqCategoryFilter" class="flex flex-wrap gap-1">
-                            <button onclick="filterFAQs('All')" class="faq-filter-btn bg-blue-600 text-white px-2.5 py-0.5 rounded-full text-xs font-medium transition">All</button>
-                            <button onclick="filterFAQs('Tuition & Fees')" class="faq-filter-btn bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition">Tuition</button>
-                            <button onclick="filterFAQs('Academics')" class="faq-filter-btn bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition">Academics</button>
-                            <button onclick="filterFAQs('Exams')" class="faq-filter-btn bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition">Exams</button>
+                        <div id="faqCategoryFilter" class="flex flex-wrap gap-[0.5rem]" role="group" aria-label="FAQ category filter">
+                            <button type="button" onclick="filterFAQs('All')" class="faq-filter-btn bg-blue-700 text-white px-[0.875rem] py-[0.375rem] rounded-[0.625rem] text-xs font-medium">All</button>
+                            <button type="button" onclick="filterFAQs('Tuition & Fees')" class="faq-filter-btn bg-white/90 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 px-[0.875rem] py-[0.375rem] rounded-[0.625rem] text-xs font-medium">Tuition</button>
+                            <button type="button" onclick="filterFAQs('Academics')" class="faq-filter-btn bg-white/90 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 px-[0.875rem] py-[0.375rem] rounded-[0.625rem] text-xs font-medium">Academics</button>
+                            <button type="button" onclick="filterFAQs('Exams')" class="faq-filter-btn bg-white/90 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 px-[0.875rem] py-[0.375rem] rounded-[0.625rem] text-xs font-medium">Exams</button>
                         </div>
                     </div>
-                    <div id="faqContainer" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4"></div>
+                    <div id="faqContainer" class="grid grid-cols-1 md:grid-cols-2 gap-[1rem] sm:gap-[1.125rem]"></div>
                 </section>
 
             </main>
@@ -318,90 +635,92 @@
     </div>
     <!-- ================= END APP SHELL ================= -->
 
-    <!-- ================= SIGN-IN GATE (default screen; shown whenever not authenticated) ================= -->
-    <div id="authModal" class="fixed inset-0 bg-gradient-to-br from-blue-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 z-50 flex items-center justify-center p-4">
-        <div class="w-full max-w-md">
-            <div class="text-center mb-6">
-                <div class="inline-flex items-center justify-center w-14 h-14 bg-blue-600 text-white rounded-2xl shadow-lg mb-3">
+    <!-- ================= SIGN-IN GATE ================= -->
+    <div id="authModal" class="fixed inset-0 z-50 p-[1.25rem] sm:p-[2rem]" role="dialog" aria-modal="true" aria-labelledby="authBrandTitle">
+        <div class="auth-backdrop" aria-hidden="true"></div>
+
+        <div class="auth-panel flex flex-col">
+            <header class="auth-brand text-center mb-[1.75rem] sm:mb-[2rem] flex flex-col items-center">
+                <div class="auth-brand-mark inline-flex items-center justify-center w-[3.75rem] h-[3.75rem] bg-blue-700 text-white rounded-[1.125rem] shadow-lg shadow-slate-900/30 mb-[1rem]" aria-hidden="true">
                     <i class="fa-solid fa-graduation-cap text-2xl"></i>
                 </div>
-                <h1 class="text-2xl font-bold text-slate-900 dark:text-white">CampusAI</h1>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">University of Ghana AI Assistant</p>
-            </div>
+                <h1 id="authBrandTitle" class="font-display text-[1.75rem] sm:text-[2rem] font-bold text-white tracking-tight drop-shadow-sm">CampusAI</h1>
+                <p class="text-sm sm:text-[0.9375rem] text-slate-200 mt-[0.5rem] max-w-[18rem] leading-relaxed">
+                    University of Ghana AI Assistant
+                </p>
+            </header>
 
-            <div class="bg-white dark:bg-slate-800 w-full rounded-2xl p-5 sm:p-6 shadow-2xl border border-slate-200 dark:border-slate-700">
-                <h3 id="authModalTitle" class="text-lg sm:text-xl font-bold mb-4">Sign In</h3>
+            <div class="auth-glass w-full rounded-[1.375rem] p-[1.5rem] sm:p-[1.75rem]">
+                <h2 id="authModalTitle" class="font-display text-lg sm:text-xl font-bold mb-[1.25rem] text-slate-900 dark:text-white">Sign In</h2>
                 
-                <form id="authForm" onsubmit="handleAuthSubmit(event)" class="space-y-3.5">
-                    <div id="nameFields" class="hidden grid grid-cols-2 gap-2.5">
-                        <div>
-                            <label class="block text-xs font-semibold mb-1">First Name</label>
-                            <input type="text" id="authFirstName" class="w-full p-2.5 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none placeholder:text-slate-400" placeholder="David">
+                <form id="authForm" onsubmit="handleAuthSubmit(event)" class="flex flex-col gap-[1rem]">
+                    <div id="nameFields" class="hidden grid grid-cols-2 gap-[0.75rem]">
+                        <div class="flex flex-col gap-[0.375rem]">
+                            <label for="authFirstName" class="block text-xs font-semibold text-slate-700 dark:text-slate-300">First Name</label>
+                            <input type="text" id="authFirstName" autocomplete="given-name" class="auth-field w-full p-[0.75rem] rounded-[0.75rem] border border-slate-300 dark:border-slate-600 dark:bg-slate-900/80 text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-slate-100" placeholder="David">
                         </div>
-                        <div>
-                            <label class="block text-xs font-semibold mb-1">Last Name</label>
-                            <input type="text" id="authLastName" class="w-full p-2.5 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none placeholder:text-slate-400" placeholder="Dev">
+                        <div class="flex flex-col gap-[0.375rem]">
+                            <label for="authLastName" class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Last Name</label>
+                            <input type="text" id="authLastName" autocomplete="family-name" class="auth-field w-full p-[0.75rem] rounded-[0.75rem] border border-slate-300 dark:border-slate-600 dark:bg-slate-900/80 text-sm outline-none placeholder:text-slate-400 text-slate-900 dark:text-slate-100" placeholder="Dev">
                         </div>
                     </div>
 
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Email Address</label>
-                        <input type="email" id="authEmail" required class="w-full p-2.5 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none">
+                    <div class="flex flex-col gap-[0.375rem]">
+                        <label for="authEmail" class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Email Address</label>
+                        <input type="email" id="authEmail" required autocomplete="email" class="auth-field w-full p-[0.75rem] rounded-[0.75rem] border border-slate-300 dark:border-slate-600 dark:bg-slate-900/80 text-sm outline-none text-slate-900 dark:text-slate-100">
                     </div>
-                    <div>
-                        <label class="block text-xs font-semibold mb-1">Password</label>
+                    <div class="flex flex-col gap-[0.375rem]">
+                        <label for="authPassword" class="block text-xs font-semibold text-slate-700 dark:text-slate-300">Password</label>
                         <div class="relative">
-                            <input type="password" id="authPassword" required class="w-full p-2.5 pr-9 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none">
-                            <button type="button" onclick="togglePasswordVisibility('authPassword', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
-                                <i class="fa-solid fa-eye text-xs"></i>
+                            <input type="password" id="authPassword" required autocomplete="current-password" class="auth-field w-full p-[0.75rem] pr-[2.5rem] rounded-[0.75rem] border border-slate-300 dark:border-slate-600 dark:bg-slate-900/80 text-sm outline-none text-slate-900 dark:text-slate-100">
+                            <button type="button" onclick="togglePasswordVisibility('authPassword', this)" aria-label="Toggle password visibility" class="absolute right-[0.75rem] top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200">
+                                <i class="fa-solid fa-eye text-xs" aria-hidden="true"></i>
                             </button>
                         </div>
                     </div>
-                    <div id="rememberMeRow" class="flex items-center justify-between">
-                        <div class="flex items-center space-x-2">
-                            <input type="checkbox" id="rememberMe" class="w-3.5 h-3.5 accent-blue-600 cursor-pointer">
-                            <label for="rememberMe" class="text-xs text-slate-500 dark:text-slate-400 cursor-pointer select-none">Remember me</label>
+                    <div id="rememberMeRow" class="flex items-center justify-between gap-[0.75rem]">
+                        <div class="flex items-center gap-[0.5rem]">
+                            <input type="checkbox" id="rememberMe" class="w-[0.875rem] h-[0.875rem] accent-blue-700 cursor-pointer">
+                            <label for="rememberMe" class="text-xs text-slate-600 dark:text-slate-400 cursor-pointer select-none">Remember me</label>
                         </div>
-                        <button type="button" onclick="openForgotPassword()" class="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline">Forgot password?</button>
+                        <button type="button" onclick="openForgotPassword()" class="text-xs text-blue-700 dark:text-blue-400 font-semibold hover:underline">Forgot password?</button>
                     </div>
-                    <button type="submit" id="authSubmitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg text-xs sm:text-sm font-semibold shadow-md">Continue</button>
+                    <button type="submit" id="authSubmitBtn" class="w-full bg-blue-700 hover:bg-blue-800 text-white py-[0.8125rem] rounded-[0.75rem] text-sm font-semibold shadow-md shadow-blue-700/25 mt-[0.25rem]">Continue</button>
                 </form>
 
-                <div id="confirmStep" class="hidden space-y-3.5 mt-4">
-                    <p class="text-xs text-slate-500">Please enter the 6-digit verification code sent to your email.</p>
-                    <input type="text" id="confirmCode" placeholder="6-digit code" class="w-full p-2.5 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none">
-                    <button onclick="confirmSignUp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-lg text-xs sm:text-sm font-semibold shadow-md">Verify Account</button>
+                <div id="confirmStep" class="hidden flex flex-col gap-[1rem] mt-[1.25rem]">
+                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Please enter the 6-digit verification code sent to your email.</p>
+                    <input type="text" id="confirmCode" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code" class="auth-field w-full p-[0.75rem] rounded-[0.75rem] border border-slate-300 dark:border-slate-600 dark:bg-slate-900/80 text-sm outline-none text-slate-900 dark:text-slate-100">
+                    <button type="button" onclick="confirmSignUp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-[0.8125rem] rounded-[0.75rem] text-sm font-semibold shadow-md">Verify Account</button>
                 </div>
 
-                <!-- Forgot Password Step 1: enter email to receive reset code -->
-                <div id="forgotStep" class="hidden space-y-3.5 mt-4">
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Enter your account email and we'll send a reset code.</p>
-                    <input type="email" id="resetEmail" placeholder="Email address" class="w-full p-2.5 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none">
-                    <button onclick="sendResetCode()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg text-xs sm:text-sm font-semibold shadow-md">Send Reset Code</button>
-                    <p class="text-center text-xs text-slate-500 dark:text-slate-400">
-                        <button type="button" onclick="openAuthModal('login')" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline">Back to Sign In</button>
+                <div id="forgotStep" class="hidden flex flex-col gap-[1rem] mt-[1.25rem]">
+                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Enter your account email and we will send a reset code.</p>
+                    <input type="email" id="resetEmail" autocomplete="email" placeholder="Email address" class="auth-field w-full p-[0.75rem] rounded-[0.75rem] border border-slate-300 dark:border-slate-600 dark:bg-slate-900/80 text-sm outline-none text-slate-900 dark:text-slate-100">
+                    <button type="button" onclick="sendResetCode()" class="w-full bg-blue-700 hover:bg-blue-800 text-white py-[0.8125rem] rounded-[0.75rem] text-sm font-semibold shadow-md shadow-blue-700/25">Send Reset Code</button>
+                    <p class="text-center text-xs text-slate-600 dark:text-slate-400">
+                        <button type="button" onclick="openAuthModal('login')" class="text-blue-700 dark:text-blue-400 font-semibold hover:underline">Back to Sign In</button>
                     </p>
                 </div>
 
-                <!-- Forgot Password Step 2: enter code + new password -->
-                <div id="resetStep" class="hidden space-y-3.5 mt-4">
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Enter the 6-digit code sent to your email and choose a new password.</p>
-                    <input type="text" id="resetCode" placeholder="6-digit code" class="w-full p-2.5 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none">
+                <div id="resetStep" class="hidden flex flex-col gap-[1rem] mt-[1.25rem]">
+                    <p class="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Enter the 6-digit code sent to your email and choose a new password.</p>
+                    <input type="text" id="resetCode" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code" class="auth-field w-full p-[0.75rem] rounded-[0.75rem] border border-slate-300 dark:border-slate-600 dark:bg-slate-900/80 text-sm outline-none text-slate-900 dark:text-slate-100">
                     <div class="relative">
-                        <input type="password" id="resetNewPassword" placeholder="New password" class="w-full p-2.5 pr-9 rounded-lg border dark:border-slate-600 dark:bg-slate-900 text-xs sm:text-sm outline-none">
-                        <button type="button" onclick="togglePasswordVisibility('resetNewPassword', this)" class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition">
-                            <i class="fa-solid fa-eye text-xs"></i>
+                        <input type="password" id="resetNewPassword" autocomplete="new-password" placeholder="New password" class="auth-field w-full p-[0.75rem] pr-[2.5rem] rounded-[0.75rem] border border-slate-300 dark:border-slate-600 dark:bg-slate-900/80 text-sm outline-none text-slate-900 dark:text-slate-100">
+                        <button type="button" onclick="togglePasswordVisibility('resetNewPassword', this)" aria-label="Toggle password visibility" class="absolute right-[0.75rem] top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200">
+                            <i class="fa-solid fa-eye text-xs" aria-hidden="true"></i>
                         </button>
                     </div>
-                    <button onclick="confirmResetPassword()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-lg text-xs sm:text-sm font-semibold shadow-md">Reset Password</button>
-                    <p class="text-center text-xs text-slate-500 dark:text-slate-400">
-                        <button type="button" onclick="openAuthModal('login')" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline">Back to Sign In</button>
+                    <button type="button" onclick="confirmResetPassword()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-[0.8125rem] rounded-[0.75rem] text-sm font-semibold shadow-md">Reset Password</button>
+                    <p class="text-center text-xs text-slate-600 dark:text-slate-400">
+                        <button type="button" onclick="openAuthModal('login')" class="text-blue-700 dark:text-blue-400 font-semibold hover:underline">Back to Sign In</button>
                     </p>
                 </div>
 
-                <p class="text-center text-xs text-slate-500 dark:text-slate-400 mt-4">
+                <p class="text-center text-xs text-slate-600 dark:text-slate-400 mt-[1.25rem]">
                     <span id="authSwitchPrompt">Don't have an account?</span>
-                    <button type="button" onclick="toggleAuthMode()" id="authSwitchBtn" class="text-blue-600 dark:text-blue-400 font-semibold hover:underline ml-1">Sign Up</button>
+                    <button type="button" onclick="toggleAuthMode()" id="authSwitchBtn" class="text-blue-700 dark:text-blue-400 font-semibold hover:underline ml-[0.25rem]">Sign Up</button>
                 </p>
             </div>
         </div>
@@ -409,7 +728,7 @@
     <!-- ================= END SIGN-IN GATE ================= -->
 
     <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-xl shadow-xl z-50 text-xs sm:text-sm max-w-xs sm:max-w-md">
+    <div id="toast" class="fixed bottom-[1.25rem] right-[1.25rem] sm:bottom-[1.5rem] sm:right-[1.5rem] transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-[1rem] py-[0.75rem] rounded-[0.875rem] shadow-xl z-50 text-sm max-w-xs sm:max-w-md" role="status" aria-live="polite">
         <span id="toastMessage">Action completed!</span>
     </div>
 
@@ -675,28 +994,28 @@
             const isActive = (session.id === activeChatId) && (activeTab === 'query');
             const div = document.createElement("div");
 
-            div.className = `group flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-medium cursor-pointer transition ${
+            div.className = `group flex items-center justify-between gap-[0.375rem] px-[0.625rem] py-[0.5rem] rounded-[0.75rem] text-xs font-medium cursor-pointer ${
                 isActive 
-                    ? 'bg-blue-50 dark:bg-slate-700/80 text-blue-600 dark:text-blue-400 font-semibold' 
-                    : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50'
+                    ? 'bg-blue-50 dark:bg-slate-700/80 text-blue-700 dark:text-blue-400 font-semibold' 
+                    : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700/50'
             }`;
 
             div.onclick = () => switchChatSession(session.id);
 
             div.innerHTML = `
-                <div class="flex items-center space-x-2 truncate pr-1">
-                    <i class="fa-regular fa-message text-xs flex-none opacity-70"></i>
+                <div class="flex items-center gap-[0.5rem] truncate min-w-0 pr-[0.25rem]">
+                    <i class="fa-regular fa-message text-xs shrink-0 opacity-70"></i>
                     <span class="truncate">${session.title}</span>
                 </div>
-                <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition flex-none">
-                    <button onclick="togglePinChat('${session.id}', event)" title="${session.pinned ? 'Unpin' : 'Pin'}" class="p-1 hover:text-blue-600 text-slate-400">
-                        <i class="fa-solid fa-thumbtack text-[10px] ${session.pinned ? 'text-blue-600 dark:text-blue-400' : ''}"></i>
+                <div class="flex items-center gap-[0.125rem] opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 shrink-0">
+                    <button onclick="togglePinChat('${session.id}', event)" title="${session.pinned ? 'Unpin' : 'Pin'}" class="p-[0.25rem] hover:text-blue-600 text-slate-500">
+                        <i class="fa-solid fa-thumbtack text-[0.625rem] ${session.pinned ? 'text-blue-600 dark:text-blue-400' : ''}"></i>
                     </button>
-                    <button onclick="renameChat('${session.id}', event)" title="Rename" class="p-1 hover:text-blue-600 text-slate-400">
-                        <i class="fa-solid fa-pen text-[10px]"></i>
+                    <button onclick="renameChat('${session.id}', event)" title="Rename" class="p-[0.25rem] hover:text-blue-600 text-slate-500">
+                        <i class="fa-solid fa-pen text-[0.625rem]"></i>
                     </button>
-                    <button onclick="deleteChatSession('${session.id}', event)" title="Delete" class="p-1 hover:text-rose-500 text-slate-400">
-                        <i class="fa-solid fa-trash-can text-[10px]"></i>
+                    <button onclick="deleteChatSession('${session.id}', event)" title="Delete" class="p-[0.25rem] hover:text-rose-600 text-slate-500">
+                        <i class="fa-solid fa-trash-can text-[0.625rem]"></i>
                     </button>
                 </div>
             `;
@@ -715,14 +1034,14 @@
 
             if (!session.messages || !session.messages.length) {
                 chatFeed.innerHTML = `
-                    <div id="emptyChatNotice" class="text-center my-auto py-6 space-y-2.5">
-                        <div class="inline-flex items-center justify-center p-3.5 bg-blue-50 dark:bg-blue-950/50 rounded-2xl mb-1 shadow-inner">
-                            <i class="fa-solid fa-sparkles text-2xl sm:text-3xl text-blue-600 dark:text-blue-400"></i>
+                    <div id="emptyChatNotice" class="text-center my-auto py-[2rem] sm:py-[2.5rem] flex flex-col items-center gap-[1rem]">
+                        <div class="inline-flex items-center justify-center w-[3.75rem] h-[3.75rem] bg-white/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 rounded-[1.125rem] shadow-sm backdrop-blur-sm" aria-hidden="true">
+                            <i class="fa-solid fa-sparkles text-2xl sm:text-3xl text-blue-700 dark:text-blue-400"></i>
                         </div>
-                        <h2 class="text-xl sm:text-3xl font-bold tracking-tight text-slate-800 dark:text-slate-100 px-2">
-                            Hello, <span id="welcomeUserName" class="text-blue-600 dark:text-blue-400">${userDisplayName}</span> 👋
+                        <h2 id="welcomeHeading" class="font-display text-2xl sm:text-[2rem] font-bold tracking-tight text-slate-900 dark:text-slate-50 px-[0.5rem] leading-tight">
+                            Hello, <span id="welcomeUserName" class="text-blue-700 dark:text-blue-400">${userDisplayName}</span>
                         </h2>
-                        <p class="text-xs sm:text-base text-slate-500 dark:text-slate-400 font-normal max-w-md mx-auto leading-relaxed px-4">
+                        <p class="text-sm sm:text-base text-slate-600 dark:text-slate-400 font-normal max-w-md mx-auto leading-relaxed px-[1rem]">
                             Ask a question or attach a document below to get started.
                         </p>
                     </div>
@@ -743,38 +1062,38 @@
 
             const chatFeed = document.getElementById("chatFeed");
             const pairWrapper = document.createElement("div");
-            pairWrapper.className = "space-y-2.5 sm:space-y-3 w-full max-w-2xl ml-auto mr-auto transition-all duration-200";
+            pairWrapper.className = "flex flex-col gap-[0.75rem] sm:gap-[0.875rem] w-full max-w-2xl mx-auto";
             if (qId) pairWrapper.setAttribute('data-question-id', qId);
 
             const parsedMarkdown = typeof marked !== 'undefined' ? marked.parse(answer || '') : (answer || '');
 
             pairWrapper.innerHTML = `
                 <div class="flex justify-end">
-                    <div data-category="${category}" class="bg-blue-600 text-white rounded-2xl rounded-tr-none px-3.5 py-2.5 sm:px-4 sm:py-2.5 text-xs sm:text-sm shadow-sm space-y-1 relative group max-w-[85%] sm:max-w-xl">
-                        <div class="flex items-center justify-between space-x-3">
-                            <span class="text-[9px] sm:text-[10px] uppercase font-semibold text-blue-200">${category}</span>
-                            <div class="action-btn-container flex items-center space-x-2">
-                                <button onclick="enableEditQuestion('${qId}', this)" title="Edit Prompt" class="text-blue-200 hover:text-white transition">
+                    <div data-category="${category}" class="bg-blue-600 text-white rounded-[1rem] rounded-tr-none px-[0.875rem] py-[0.625rem] sm:px-[1rem] sm:py-[0.75rem] text-sm shadow-sm flex flex-col gap-[0.375rem] relative group max-w-[85%] sm:max-w-xl">
+                        <div class="flex items-center justify-between gap-[0.75rem]">
+                            <span class="text-[0.5625rem] sm:text-[0.625rem] uppercase font-semibold tracking-wide text-blue-100">${category}</span>
+                            <div class="action-btn-container flex items-center gap-[0.5rem]">
+                                <button onclick="enableEditQuestion('${qId}', this)" title="Edit Prompt" class="text-blue-100 hover:text-white">
                                     <i class="fa-solid fa-pen-to-square text-xs"></i>
                                 </button>
-                                <button onclick="deleteQuestion('${qId}')" title="Delete Question & Response" class="text-blue-200 hover:text-white transition">
+                                <button onclick="deleteQuestion('${qId}')" title="Delete Question & Response" class="text-blue-100 hover:text-white">
                                     <i class="fa-solid fa-trash-can text-xs"></i>
                                 </button>
                             </div>
                         </div>
                         ${fileName ? `
-                            <div class="flex items-center space-x-1.5 text-[11px] bg-blue-700/60 px-2 py-1 rounded-lg mb-1">
+                            <div class="flex items-center gap-[0.375rem] text-[0.6875rem] bg-blue-700/60 px-[0.5rem] py-[0.25rem] rounded-[0.5rem]">
                                 <i class="fa-solid fa-paperclip"></i>
                                 <span class="truncate">${fileName}</span>
                             </div>
                         ` : ''}
-                        <p class="break-words user-prompt-text">${question}</p>
+                        <p class="break-words user-prompt-text leading-relaxed">${question}</p>
                     </div>
                 </div>
 
                 <div class="flex justify-start ai-response-slot">
-                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-none p-3.5 sm:p-4 w-full text-xs sm:text-sm text-slate-700 dark:text-slate-200 shadow-sm space-y-2">
-                        <div class="flex items-center space-x-2 text-blue-600 dark:text-blue-400 font-semibold text-xs">
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[1rem] rounded-tl-none p-[0.875rem] sm:p-[1rem] w-full text-sm text-slate-700 dark:text-slate-200 shadow-sm flex flex-col gap-[0.5rem]">
+                        <div class="flex items-center gap-[0.5rem] text-blue-700 dark:text-blue-400 font-semibold text-xs">
                             <i class="fa-solid fa-sparkles"></i>
                             <span>CampusAI (${category})</span>
                         </div>
@@ -872,14 +1191,14 @@
                 document.getElementById(`content-${t}`).classList.add('hidden');
                 const btn = document.getElementById(`tab-${t}`);
                 if (btn) {
-                    btn.className = "rail-btn text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white px-3";
+                    btn.className = "rail-btn text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white";
                 }
             });
 
             document.getElementById(`content-${tab}`).classList.remove('hidden');
             const activeBtn = document.getElementById(`tab-${tab}`);
             if (activeBtn) {
-                activeBtn.className = "rail-btn bg-slate-100 dark:bg-slate-700/70 text-blue-600 dark:text-blue-400 font-semibold px-3";
+                activeBtn.className = "rail-btn bg-slate-100 dark:bg-slate-700/70 text-blue-700 dark:text-blue-400 font-semibold";
             }
 
             const headerTitle = document.getElementById('currentChatTitleHeader');
@@ -994,7 +1313,7 @@
             const container = document.getElementById("authNavButtons");
             if (idToken) {
                 container.innerHTML = `
-                    <button onclick="logout()" class="bg-rose-500 hover:bg-rose-600 text-white text-xs px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl font-semibold shadow-sm transition">Sign Out</button>
+                    <button onclick="logout()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs px-[0.625rem] py-[0.5rem] sm:px-[0.875rem] sm:py-[0.5625rem] rounded-[0.75rem] font-semibold shadow-sm">Sign Out</button>
                 `;
             } else {
                 container.innerHTML = "";
@@ -1204,7 +1523,7 @@
         function showToast(message, isError = false) {
             const toast = document.getElementById("toast");
             document.getElementById("toastMessage").innerText = message;
-            toast.className = `fixed bottom-4 right-4 sm:bottom-5 sm:right-5 transform transition-all duration-300 ${isError ? 'bg-rose-800' : 'bg-slate-900'} text-white px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-xl shadow-xl z-50 text-xs sm:text-sm max-w-xs sm:max-w-md`;
+            toast.className = `fixed bottom-[1.25rem] right-[1.25rem] sm:bottom-[1.5rem] sm:right-[1.5rem] transform transition-all duration-300 ${isError ? 'bg-rose-800' : 'bg-slate-900'} text-white px-[1rem] py-[0.75rem] rounded-[0.875rem] shadow-xl z-50 text-sm max-w-xs sm:max-w-md`;
             toast.classList.remove("translate-y-20", "opacity-0");
             setTimeout(() => toast.classList.add("translate-y-20", "opacity-0"), 3500);
         }
@@ -1225,8 +1544,8 @@
             document.querySelectorAll(".cat-btn").forEach(btn => {
                 const btnText = btn.innerText.trim();
                 btn.className = btnText === cat ? 
-                    "cat-btn flex-none bg-blue-600 text-white px-2.5 py-0.5 rounded-full text-xs font-medium transition" : 
-                    "cat-btn flex-none bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 hover:bg-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition";
+                    "cat-btn shrink-0 bg-blue-700 text-white px-[0.875rem] py-[0.375rem] rounded-[0.625rem] text-xs font-medium" : 
+                    "cat-btn shrink-0 bg-white/90 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600 border border-slate-200 dark:border-slate-600 px-[0.875rem] py-[0.375rem] rounded-[0.625rem] text-xs font-medium";
             });
         }
 
@@ -1277,15 +1596,15 @@
             const category = bubble.dataset.category || 'General';
 
             bubble.innerHTML = `
-                <div class="space-y-2 w-full">
-                    <div class="flex items-center justify-between text-[10px] text-blue-200">
-                        <span class="font-semibold uppercase">Edit Prompt</span>
+                <div class="flex flex-col gap-[0.5rem] w-full">
+                    <div class="flex items-center justify-between text-[0.625rem] text-blue-100">
+                        <span class="font-semibold uppercase tracking-wide">Edit Prompt</span>
                         <span class="uppercase">${category}</span>
                     </div>
-                    <textarea class="edit-textarea w-full bg-blue-700 text-white rounded-xl p-2 text-xs focus:outline-none resize-none border border-blue-400/40" rows="2">${currentText}</textarea>
-                    <div class="flex justify-end space-x-2 pt-1">
-                        <button type="button" onclick="cancelEdit(this)" class="px-2.5 py-1 text-[11px] text-blue-200 hover:text-white transition font-medium">Cancel</button>
-                        <button type="button" onclick="submitEditedQuestion('${qId}', this)" class="px-3 py-1 text-[11px] bg-white text-blue-700 hover:bg-blue-50 transition rounded-lg font-bold shadow-sm">Save & Resubmit</button>
+                    <textarea class="edit-textarea w-full bg-blue-700 text-white rounded-[0.75rem] p-[0.5rem] text-sm focus:outline-none resize-none border border-blue-400/40" rows="2">${currentText}</textarea>
+                    <div class="flex justify-end gap-[0.5rem] pt-[0.25rem]">
+                        <button type="button" onclick="cancelEdit(this)" class="px-[0.625rem] py-[0.25rem] text-[0.6875rem] text-blue-100 hover:text-white font-medium">Cancel</button>
+                        <button type="button" onclick="submitEditedQuestion('${qId}', this)" class="px-[0.75rem] py-[0.25rem] text-[0.6875rem] bg-white text-blue-700 hover:bg-blue-50 rounded-lg font-bold shadow-sm">Save & Resubmit</button>
                     </div>
                 </div>
             `;
@@ -1315,25 +1634,25 @@
             const category = bubble.dataset.category || 'General';
 
             bubble.innerHTML = `
-                <div class="flex items-center justify-between space-x-3">
-                    <span class="text-[9px] sm:text-[10px] uppercase font-semibold text-blue-200">${category}</span>
-                    <div class="action-btn-container flex items-center space-x-2">
-                        <button onclick="enableEditQuestion('${qId}', this)" title="Edit Prompt" class="text-blue-200 hover:text-white transition">
+                <div class="flex items-center justify-between gap-[0.75rem]">
+                    <span class="text-[0.5625rem] sm:text-[0.625rem] uppercase font-semibold tracking-wide text-blue-100">${category}</span>
+                    <div class="action-btn-container flex items-center gap-[0.5rem]">
+                        <button onclick="enableEditQuestion('${qId}', this)" title="Edit Prompt" class="text-blue-100 hover:text-white">
                             <i class="fa-solid fa-pen-to-square text-xs"></i>
                         </button>
-                        <button onclick="deleteQuestion('${qId}')" title="Delete Question & Response" class="text-blue-200 hover:text-white transition">
+                        <button onclick="deleteQuestion('${qId}')" title="Delete Question & Response" class="text-blue-100 hover:text-white">
                             <i class="fa-solid fa-trash-can text-xs"></i>
                         </button>
                     </div>
                 </div>
-                <p class="break-words user-prompt-text">${newText}</p>
+                <p class="break-words user-prompt-text leading-relaxed">${newText}</p>
             `;
             delete bubble.dataset.originalHtml;
 
             const responseSlot = pairWrapper.querySelector('.ai-response-slot');
             if (responseSlot) {
                 responseSlot.innerHTML = `
-                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-none p-3.5 sm:p-4 w-full text-xs text-slate-500 shadow-sm flex items-center space-x-2">
+                    <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[1rem] rounded-tl-none p-[0.875rem] sm:p-[1rem] w-full text-sm text-slate-500 shadow-sm flex items-center gap-[0.5rem]">
                         <i class="fa-solid fa-sparkles fa-spin text-blue-500"></i>
                         <span>Re-analyzing prompt...</span>
                     </div>
@@ -1374,8 +1693,8 @@
                 if (responseSlot) {
                     const parsedMarkdown = typeof marked !== 'undefined' ? marked.parse(answerText) : answerText;
                     responseSlot.innerHTML = `
-                        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-none p-3.5 sm:p-4 w-full text-xs sm:text-sm text-slate-700 dark:text-slate-200 shadow-sm space-y-2">
-                            <div class="flex items-center space-x-2 text-blue-600 dark:text-blue-400 font-semibold text-xs">
+                        <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[1rem] rounded-tl-none p-[0.875rem] sm:p-[1rem] w-full text-sm text-slate-700 dark:text-slate-200 shadow-sm flex flex-col gap-[0.5rem]">
+                            <div class="flex items-center gap-[0.5rem] text-blue-700 dark:text-blue-400 font-semibold text-xs">
                                 <i class="fa-solid fa-sparkles"></i>
                                 <span>CampusAI (${category})</span>
                             </div>
@@ -1386,7 +1705,7 @@
 
             } catch (err) {
                 if (responseSlot) {
-                    responseSlot.innerHTML = `<div class="bg-rose-50 text-rose-700 p-3 rounded-xl text-xs w-full">${err.message}</div>`;
+                    responseSlot.innerHTML = `<div class="bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 p-[0.75rem] rounded-[0.75rem] text-sm w-full">${err.message}</div>`;
                 }
             }
         }
@@ -1497,8 +1816,8 @@
                     if (responseSlot) {
                         const parsedMarkdown = typeof marked !== 'undefined' ? marked.parse(answerText) : answerText;
                         responseSlot.innerHTML = `
-                            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl rounded-tl-none p-3.5 sm:p-4 w-full text-xs sm:text-sm text-slate-700 dark:text-slate-200 shadow-sm space-y-2">
-                                <div class="flex items-center space-x-2 text-blue-600 dark:text-blue-400 font-semibold text-xs">
+                            <div class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-[1rem] rounded-tl-none p-[0.875rem] sm:p-[1rem] w-full text-sm text-slate-700 dark:text-slate-200 shadow-sm flex flex-col gap-[0.5rem]">
+                                <div class="flex items-center gap-[0.5rem] text-blue-700 dark:text-blue-400 font-semibold text-xs">
                                     <i class="fa-solid fa-sparkles"></i>
                                     <span>CampusAI (${category})</span>
                                 </div>
@@ -1514,8 +1833,8 @@
                     const responseSlot = pairWrapper.querySelector('.ai-response-slot');
                     if (responseSlot) {
                         responseSlot.innerHTML = `
-                            <div class="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 p-3.5 rounded-2xl text-xs sm:text-sm w-full">
-                                <i class="fa-solid fa-circle-exclamation mr-1.5"></i> ${err.message}
+                            <div class="bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 p-[0.875rem] rounded-[1rem] text-sm w-full">
+                                <i class="fa-solid fa-circle-exclamation mr-[0.375rem]"></i> ${err.message}
                             </div>
                         `;
                     }
@@ -1620,12 +1939,12 @@
 
                 return `
                 <div onclick="askPrompt('${(f.question || '').replace(/'/g, "\\'")}', '${f.category || 'General'}')" 
-                     class="p-3.5 sm:p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-500 cursor-pointer transition shadow-sm space-y-2">
-                    <div class="flex items-center justify-between">
-                        <span class="text-[9px] sm:text-[10px] font-semibold uppercase px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-300">${f.category || 'General'}</span>
-                        <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-400"></i>
+                     class="faq-tile p-[1rem] sm:p-[1.125rem] bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-[1rem] border border-slate-200 dark:border-slate-700 hover:border-blue-500 cursor-pointer flex flex-col gap-[0.625rem]" role="button" tabindex="0">
+                    <div class="flex items-center justify-between gap-[0.5rem]">
+                        <span class="text-[0.625rem] font-semibold uppercase tracking-wide px-[0.5rem] py-[0.25rem] rounded-md bg-blue-50 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300">${f.category || 'General'}</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square text-xs text-slate-500" aria-hidden="true"></i>
                     </div>
-                    <h3 class="text-xs font-bold text-slate-800 dark:text-slate-100">${f.question || ''}</h3>
+                    <h3 class="text-sm font-bold text-slate-800 dark:text-slate-100 leading-snug">${f.question || ''}</h3>
                     <div class="markdown-body text-xs text-slate-600 dark:text-slate-300 leading-relaxed">${parsedMarkdown}</div>
                 </div>
             `}).join('');
@@ -1641,8 +1960,8 @@
                                 (btnText === targetText);
 
                 btn.className = isMatch ? 
-                    "faq-filter-btn bg-blue-600 text-white px-2.5 py-0.5 rounded-full text-xs font-medium transition" : 
-                    "faq-filter-btn bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-2.5 py-0.5 rounded-full text-xs font-medium transition";
+                    "faq-filter-btn bg-blue-700 text-white px-[0.875rem] py-[0.375rem] rounded-[0.625rem] text-xs font-medium" : 
+                    "faq-filter-btn bg-white/90 dark:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-600 px-[0.875rem] py-[0.375rem] rounded-[0.625rem] text-xs font-medium";
             });
 
             if (targetCategory === 'All') {
