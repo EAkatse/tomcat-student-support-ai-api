@@ -58,7 +58,7 @@ jobs:
         working-directory: .
         run: |
           DISTRIBUTION_ID=$(aws cloudformation describe-stacks \
-            --stack-name studypal-frontend-401042945835-us-east-1 \
+            --stack-name student-support-ai-system \
             --query "Stacks[0].Outputs[?OutputKey=='CloudFrontDistributionId'].OutputValue" \
             --output text)
           
