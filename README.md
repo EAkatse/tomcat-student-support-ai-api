@@ -12,7 +12,7 @@ Live URL: https://www.campusai.site
 ---
 
 ## Architecture
-![Serverless Student AI Support Architecture Diagram](Serverless_Student_AI_Support_Architecture_Diagram.jpg)
+![Serverless Student AI Support Architecture Diagram](./docs/Serverless_Student_AI_Support_Architecture_Diagram.jpg)
 
 ## End-to-End System Architecture Overview
 
