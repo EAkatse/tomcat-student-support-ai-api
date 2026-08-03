@@ -1,4 +1,4 @@
-# CampusAI — Serverless AI-Powered Student Support System
+# CampusAI — Serverless Support System
 ---
 
 ## System Overview
